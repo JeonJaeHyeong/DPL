@@ -1,11 +1,10 @@
-# A Toolkit for Scene Graph Benchmark in Pytorch(PySGG)
+# Semantic Diversity-aware Prototype-based Learning (DPL) for Unbiased Scene Graph Generation (ECCV 2024)
 
-[![LICENSE](https://img.shields.io/badge/license-MIT-green)](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch/blob/master/LICENSE)
-[![Python](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/)
-![PyTorch](https://img.shields.io/badge/pytorch-1.4.0-%237732a8)
+This is the official code for ECCV 2024 paper [Semantic Diversity-aware Prototype-based Learning (DPL) for Unbiased Scene Graph Generation](https://arxiv.org/abs/2104.00308).
 
-Our paper [Bipartite Graph Network with Adaptive Message Passing for Unbiased Scene Graph Generation](https://arxiv.org/abs/2104.00308) has been accepted by CVPR 2021.
+Please wait a bit longer for the repository to be completed.
 
+<!--
 ## Installation
 
 Check [INSTALL.md](INSTALL.md) for installation instructions.
@@ -13,11 +12,6 @@ Check [INSTALL.md](INSTALL.md) for installation instructions.
 ## Dataset
 
 Check [DATASET.md](DATASET.md) for instructions of dataset preprocessing.
-
-## Model Zoo 
-BGNN performance:
-
-The methods implemented in our toolkit and reported results are given in [Model Zoo.md](MODELZOO.md)
 
 ## Training **(IMPORTANT)**
 
@@ -81,3 +75,6 @@ If you find this project helps your research, please kindly consider citing our 
 
 ## Acknowledgment
 This repository is developed on top of the scene graph benchmarking framwork develped by [KaihuaTang](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch)
+
+
+-->
