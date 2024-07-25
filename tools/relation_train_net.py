@@ -96,30 +96,11 @@ def train(
 ):
     global SHOW_COMP_GRAPH
 
-    debug_print(logger, "Start initializing dataset & dataloader")
-
-    arguments = {}
-    arguments["iteration"] = 0
-    output_dir = cfg.OUTPUT_DIR
-
-    train_data_loader = make_data_loader(
-        cfg,
-        mode="train",
-        is_distributed=distributed,
-        start_iter=arguments["iteration"],
-    )
-    val_data_loaders = make_data_loader(
-        cfg,
-        mode="val",
-        is_distributed=distributed,
-    )
-
-    debug_print(logger, "end dataloader")
-
     debug_print(logger, "prepare training")
     model = build_detection_model(cfg)
     model.train()
     debug_print(logger, "end model construction")
+
     logger.info(str(model))
     # modules that should be always set in eval mode
     # their eval() method should be called after model.train() is called
@@ -225,8 +206,8 @@ def train(
     else:
         rel_on_module = None
 
-    logger.info("trainable models:")
-    logger.info(show_params_status(model))
+    #logger.info("trainable models:")
+    #logger.info(show_params_status(model))
 
     # NOTE, we slow down the LR of the layers start with the names in slow_heads
     slow_heads = []
@@ -299,29 +280,50 @@ def train(
     amp_opt_level = "O1" if use_mixed_precision else "O0"
     model, optimizer = amp.initialize(model, optimizer, opt_level=amp_opt_level)
 
+    debug_print(logger, "Start initializing dataset & dataloader")
+
+    arguments = {}
+    arguments["iteration"] = 0
+    output_dir = cfg.OUTPUT_DIR
+
+    train_data_loader = make_data_loader(
+        cfg,
+        mode="train",
+        is_distributed=distributed,
+        start_iter=arguments["iteration"],
+    )
+    val_data_loaders = make_data_loader(
+        cfg,
+        mode="val",
+        is_distributed=distributed,
+    )
+
+    debug_print(logger, "end dataloader")
+
     save_to_disk = get_rank() == 0
     checkpointer = DetectronCheckpointer(
         cfg, model, optimizer, scheduler, output_dir, save_to_disk, custom_scheduler=True
     )
+
+    if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+        pretrain_object_detector_dir = cfg.MODEL.PRETRAINED_DETECTOR_CKPT_VG
+    elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+        pretrain_object_detector_dir = cfg.MODEL.PRETRAINED_DETECTOR_CKPT_GQA
+
     # todo, unless mark as resume, otherwise load from the pretrained checkpoint
-    if cfg.MODEL.PRETRAINED_DETECTOR_CKPT != "":
-        checkpointer.load(
-            cfg.MODEL.PRETRAINED_DETECTOR_CKPT, with_optim=False, load_mapping=load_mapping
-        )
+    if checkpointer.has_checkpoint():
+        extra_checkpoint_data = checkpointer.load(pretrain_object_detector_dir, with_optim=False,
+                                       update_schedule=cfg.SOLVER.UPDATE_SCHEDULE_DURING_LOAD)
+        arguments.update(extra_checkpoint_data)
     else:
-        checkpointer.load(
-            cfg.MODEL.WEIGHT,
-            with_optim=False,
-        )
+        # load_mapping is only used when we init current model from detection model.
+        checkpointer.load(pretrain_object_detector_dir, with_optim=False, load_mapping=load_mapping)
 
     checkpoint_period = cfg.SOLVER.CHECKPOINT_PERIOD
     debug_print(logger, "end load checkpointer")
 
     if cfg.MODEL.ROI_RELATION_HEAD.RE_INITIALIZE_CLASSIFIER:
         model.roi_heads.relation.predictor.init_classifier_weight()
-
-    # preserve a reference for logging
-    rel_model_ref = model.roi_heads.relation
 
     if distributed:
         model = torch.nn.parallel.DistributedDataParallel(
@@ -338,23 +340,6 @@ def train(
         logger.info("Validate before training")
         run_val(cfg, model, val_data_loaders, distributed, logger)
 
-    pre_clser_pretrain_on = False
-    if (
-        cfg.MODEL.ROI_RELATION_HEAD.RELATION_PROPOSAL_MODEL.PRETRAIN_RELNESS_MODULE
-        and cfg.MODEL.ROI_RELATION_HEAD.RELATION_PROPOSAL_MODEL.SET_ON
-    ):
-        if distributed:
-            m2opt = model.module
-        else:
-            m2opt = model
-        m2opt.roi_heads.relation.predictor.start_preclser_relpn_pretrain()
-        logger.info("Start preclser_relpn_pretrain")
-        pre_clser_pretrain_on = True
-
-        STOP_ITER = (
-            cfg.MODEL.ROI_RELATION_HEAD.RELATION_PROPOSAL_MODEL.PRETRAIN_ITER_RELNESS_MODULE
-        )
-
     logger.info("Start training")
     meters = MetricLogger(delimiter="  ")
     max_iter = len(train_data_loader)
@@ -363,7 +348,6 @@ def train(
     end = time.time()
 
     model.train()
-
     print_first_grad = True
     for iteration, (images, targets, _) in enumerate(train_data_loader, start_iter):
         if any(len(target) < 1 for target in targets):
@@ -396,26 +380,8 @@ def train(
         with amp.scale_loss(losses, optimizer) as scaled_losses:
             scaled_losses.backward()
 
-        if not SHOW_COMP_GRAPH and get_rank() == 0:
-            try:
-                g = vis_graph.visual_computation_graph(
-                    losses, model.named_parameters(), cfg.OUTPUT_DIR, "total_loss-graph"
-                )
-                g.render()
-                for name, ls in loss_dict_reduced.items():
-                    g = vis_graph.visual_computation_graph(
-                        losses, model.named_parameters(), cfg.OUTPUT_DIR, f"{name}-graph"
-                    )
-                    g.render()
-            except:
-                logger.info("print computational graph failed")
-
-            SHOW_COMP_GRAPH = True
-
         # add clip_grad_norm from MOTIFS, tracking gradient, used for debug
-        verbose = (
-            iteration % cfg.SOLVER.PRINT_GRAD_FREQ
-        ) == 0 or print_first_grad  # print grad or not
+        verbose = ( iteration % cfg.SOLVER.PRINT_GRAD_FREQ ) == 0 or print_first_grad  # print grad or not
         print_first_grad = False
         clip_grad_norm(
             [(n, p) for n, p in model.named_parameters() if p.requires_grad],
@@ -434,31 +400,6 @@ def train(
         eta_seconds = meters.time.global_avg * (max_iter - iteration)
         eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
         elapsed_time = str(datetime.timedelta(seconds=int(end - start_training_time)))
-
-        if (
-            iteration
-            in [
-                cfg.MODEL.ROI_RELATION_HEAD.RELATION_PROPOSAL_MODEL.FIX_MODEL_AT_ITER,
-            ]
-            and rel_on_module is not None
-        ):
-            logger.info("fix the rel pn module")
-            fix_eval_modules(rel_pn_module_ref)
-
-        if pre_clser_pretrain_on:
-            if iteration == STOP_ITER:
-                logger.info("pre clser pretraining ended.")
-                m2opt.roi_heads.relation.predictor.end_preclser_relpn_pretrain()
-                pre_clser_pretrain_on = False
-
-        if iteration % 30 == 0:
-            logger.log(TFBoardHandler_LEVEL, (meters.meters, iteration))
-
-            logger.log(
-                TFBoardHandler_LEVEL,
-                ({"curr_lr": float(optimizer.param_groups[0]["lr"])}, iteration),
-            )
-            # save_buffer(output_dir)
 
         if iteration % 100 == 0 or iteration == max_iter:
             logger.info(
@@ -482,8 +423,6 @@ def train(
                     memory=torch.cuda.max_memory_allocated() / 1024.0 / 1024.0,
                 )
             )
-            if pre_clser_pretrain_on:
-                logger.info("relness module pretraining..")
 
         if iteration % checkpoint_period == 0:
             checkpointer.save("model_{:07d}".format(iteration), **arguments)
@@ -496,9 +435,10 @@ def train(
             val_result = run_val(cfg, model, val_data_loaders, distributed, logger)
             val_result_value = val_result[1]
             if get_rank() == 0:
-                for each_ds_eval in val_result[0]:
-                    for each_evalator_res in each_ds_eval[1]:
-                        logger.log(TFBoardHandler_LEVEL, (each_evalator_res, iteration))
+                if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+                    for each_ds_eval in val_result[0]:
+                        for each_evalator_res in each_ds_eval[1]:
+                            logger.log(TFBoardHandler_LEVEL, (each_evalator_res, iteration))
         # scheduler should be called after optimizer.step() in pytorch>=1.1.0
         # https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
         if cfg.SOLVER.SCHEDULE.TYPE == "WarmupReduceLROnPlateau":
@@ -548,7 +488,14 @@ def run_val(cfg, model, val_data_loaders, distributed, logger):
     if cfg.MODEL.ATTRIBUTE_ON:
         iou_types = iou_types + ("attributes",)
 
-    dataset_names = cfg.DATASETS.VAL
+    if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+        dataset_names = cfg.DATASETS.VG_VAL
+    elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+        dataset_names = cfg.DATASETS.GQA_200_VAL
+    else:
+        dataset_names = None
+        exit('wrong Dataset name!')
+
     val_result = []
     for dataset_name, val_data_loader in zip(dataset_names, val_data_loaders):
         dataset_result = inference(
@@ -595,8 +542,18 @@ def run_test(cfg, model, distributed, logger):
         iou_types = iou_types + ("relations",)
     if cfg.MODEL.ATTRIBUTE_ON:
         iou_types = iou_types + ("attributes",)
+
+    if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+        dataset_names = cfg.DATASETS.VG_VAL
+    elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+        dataset_names = cfg.DATASETS.GQA_200_VAL
+    elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'OIv6':
+        dataset_names = cfg.DATASETS.OIv6_VAL
+    else:
+        dataset_names = None
+        exit('wrong Dataset name!')
     output_folders = [None] * len(cfg.DATASETS.TEST)
-    dataset_names = cfg.DATASETS.TEST
+
     if cfg.OUTPUT_DIR:
         for idx, dataset_name in enumerate(dataset_names):
             output_folder = os.path.join(cfg.OUTPUT_DIR, "inference", dataset_name)
@@ -658,26 +615,6 @@ def main():
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
 
-    # mode
-    if cfg.MODEL.ROI_RELATION_HEAD.USE_GT_BOX:
-        if cfg.MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL:
-            mode = "predcls"
-        else:
-            mode = "sgcls"
-    else:
-        mode = "sgdet"
-
-    now = datetime.datetime.now()
-    time_str = now.strftime("%Y-%m-%d_%H")
-
-    cfg.OUTPUT_DIR = os.path.join(
-        cfg.OUTPUT_DIR,
-        f"{mode}-{cfg.MODEL.ROI_RELATION_HEAD.PREDICTOR}",
-        f"({time_str}){cfg.EXPERIMENT_NAME}"
-        + f"{'(resampling)' if cfg.MODEL.ROI_RELATION_HEAD.DATA_RESAMPLING else ''}"
-        + f"{'(debug)' if cfg.DEBUG else ''}",
-    )
-
     cfg.freeze()
 
     output_dir = cfg.OUTPUT_DIR
@@ -692,10 +629,10 @@ def main():
     #     logger.info("\n" + collect_env_info())
 
     logger.info("Loaded configuration file {}".format(args.config_file))
-    with open(args.config_file, "r") as cf:
-        config_str = "\n" + cf.read()
-        logger.info(config_str)
-    logger.info("Running with config:\n{}".format(cfg))
+    #with open(args.config_file, "r") as cf:
+    #    config_str = "\n" + cf.read()
+    #    logger.info(config_str)
+    #logger.info("Running with config:\n{}".format(cfg))
 
     output_config_path = os.path.join(cfg.OUTPUT_DIR, "config.yml")
     logger.info("Saving config into: {}".format(output_config_path))
@@ -709,6 +646,5 @@ def main():
 
 
 if __name__ == "__main__":
-    os.environ["OMP_NUM_THREADS"] = "8"
 
     main()

@@ -44,7 +44,8 @@ _C.MODEL.WEIGHT = ""
 
 # checkpoint of detector, for relation prediction
 _C.MODEL.PRETRAINED_DETECTOR_CKPT = ""
-
+_C.MODEL.PRETRAINED_DETECTOR_CKPT_GQA = ""
+_C.MODEL.PRETRAINED_DETECTOR_CKPT_VG = ""
 # -----------------------------------------------------------------------------
 # INPUT
 # -----------------------------------------------------------------------------
@@ -226,7 +227,8 @@ _C.MODEL.ROI_BOX_HEAD.PREDICTOR = "FastRCNNPredictor"
 _C.MODEL.ROI_BOX_HEAD.POOLER_RESOLUTION = 14
 _C.MODEL.ROI_BOX_HEAD.POOLER_SAMPLING_RATIO = 0
 _C.MODEL.ROI_BOX_HEAD.POOLER_SCALES = (1.0 / 16,)
-_C.MODEL.ROI_BOX_HEAD.NUM_CLASSES = 81
+_C.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES = 151
+_C.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES = 201
 # Hidden layer dimension when using an MLP for the RoI box head
 _C.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM = 2048
 # GN
@@ -284,7 +286,8 @@ _C.MODEL.ROI_RELATION_HEAD = CN()
 _C.MODEL.ROI_RELATION_HEAD.PREDICTOR = "MotifPredictor"
 _C.MODEL.ROI_RELATION_HEAD.FEATURE_EXTRACTOR = "RelationFeatureExtractor"
 _C.MODEL.ROI_RELATION_HEAD.POOLING_ALL_LEVELS = True
-_C.MODEL.ROI_RELATION_HEAD.NUM_CLASSES = 51
+_C.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES = 51
+_C.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES = 101
 _C.MODEL.ROI_RELATION_HEAD.BATCH_SIZE_PER_IMAGE = 64
 _C.MODEL.ROI_RELATION_HEAD.POSITIVE_FRACTION = 0.25
 _C.MODEL.ROI_RELATION_HEAD.MAX_PROPOSAL_PAIR = 2048
@@ -444,6 +447,17 @@ _C.MODEL.ROI_RELATION_HEAD.CAUSAL.FUSION_TYPE = 'sum'  # features  # gate
 _C.MODEL.ROI_RELATION_HEAD.CAUSAL.AUXILIARY_LOSS = True
 # causal context feature layer
 _C.MODEL.ROI_RELATION_HEAD.CAUSAL.CONTEXT_LAYER = 'motifs'
+
+
+######################################################
+_C.MODEL.ROI_RELATION_HEAD.DPL = CN()
+_C.MODEL.ROI_RELATION_HEAD.DPL.N_DIM = 128
+_C.MODEL.ROI_RELATION_HEAD.DPL.ALPHA = 10
+_C.MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE = 20
+_C.MODEL.ROI_RELATION_HEAD.DPL.RADIUS = 1.0
+_C.MODEL.ROI_RELATION_HEAD.DPL.FREQ_BASED_N = False
+
+######################################################
 
 # the relation proposal module for the graph model, here we will predict a confidence for each proposed relationship
 # pairs, the graph model will use this relatedness score as a reference to filter the graph

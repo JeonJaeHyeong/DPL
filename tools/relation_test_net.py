@@ -71,10 +71,10 @@ def main():
     save_dir = ""
     logger = setup_logger("pysgg", save_dir, get_rank())
     logger.info("Using {} GPUs".format(num_gpus))
-    logger.info(cfg)
+    #logger.info(cfg)
 
-    logger.info("Collecting env info (might take some time)")
-    logger.info("\n" + collect_env_info())
+    #logger.info("Collecting env info (might take some time)")
+    #logger.info("\n" + collect_env_info())
 
     model = build_detection_model(cfg)
     model.to(cfg.MODEL.DEVICE)
@@ -85,7 +85,7 @@ def main():
 
     output_dir = cfg.OUTPUT_DIR
     checkpointer = DetectronCheckpointer(cfg, model, save_dir=output_dir)
-    _ = checkpointer.load(cfg.MODEL.WEIGHT)
+    extra_checkpoint_data = checkpointer.load(cfg.MODEL.WEIGHT)
 
 
     if placeholder is not None:
@@ -103,11 +103,21 @@ def main():
         iou_types = iou_types + ("relations", )
     if cfg.MODEL.ATTRIBUTE_ON:
         iou_types = iou_types + ("attributes", )
-    output_folders = [None] * len(cfg.DATASETS.TEST)
-    dataset_names = cfg.DATASETS.TEST
+
+    if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+        dataset_names = cfg.DATASETS.VG_TEST
+    elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+        dataset_names = cfg.DATASETS.GQA_200_TEST
+    else:
+        dataset_names = None
+        exit('wrong Dataset name!')
+
+    output_folders = [None] * len(dataset_names)
+    iteration = extra_checkpoint_data['iteration']
+
     if cfg.OUTPUT_DIR:
         for idx, dataset_name in enumerate(dataset_names):
-            output_folder = os.path.join(cfg.OUTPUT_DIR, "inference", dataset_name)
+            output_folder = os.path.join(cfg.OUTPUT_DIR, "inference", 'model_' + str(iteration))
             mkdir(output_folder)
             output_folders[idx] = output_folder
     data_loaders_val = make_data_loader(cfg, mode="test", is_distributed=distributed)

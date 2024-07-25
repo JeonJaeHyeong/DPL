@@ -1,10 +1,9 @@
-# Semantic Diversity-aware Prototype-based Learning (DPL) for Unbiased Scene Graph Generation (ECCV 2024)
+# Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation (ECCV 2024)
 
-This is the official code for ECCV 2024 paper [Semantic Diversity-aware Prototype-based Learning (DPL) for Unbiased Scene Graph Generation](https://arxiv.org/abs/2104.00308).
+This is the official code for ECCV 2024 paper [Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation](https://arxiv.org/abs/2104.00308).
 
 Please wait a bit longer for the repository to be completed.
 
-<!--
 ## Installation
 
 Check [INSTALL.md](INSTALL.md) for installation instructions.
@@ -13,24 +12,20 @@ Check [INSTALL.md](INSTALL.md) for installation instructions.
 
 Check [DATASET.md](DATASET.md) for instructions of dataset preprocessing.
 
-## Training **(IMPORTANT)**
 
-### Prepare Faster-RCNN Detector
-- You can download the pretrained Faster R-CNN we used in the paper: 
-  - [VG](https://shanghaitecheducn-my.sharepoint.com/:u:/g/personal/lirj2_shanghaitech_edu_cn/EQIy64T-EK9Er9y8kVCDaukB79gJwfSsEIbey9g0Xag6lg?e=wkKHJs), 
-  - [OIv6](https://shanghaitecheducn-my.sharepoint.com/:u:/g/personal/lirj2_shanghaitech_edu_cn/EfGXxc9byEtEnYFwd0xdlYEBcUuFXBjYxNUXVGkgc-jkfQ?e=lSlqnz), 
-  - [OIv4](https://shanghaitecheducn-my.sharepoint.com/:u:/g/personal/lirj2_shanghaitech_edu_cn/EcxwkWxBqUdLuoP58vnUyMABR2-DC33NGj13Hcnw96kuXw?e=NveDcl) 
-- put the checkpoint into the folder:
+## Pretrained Models
+
+For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://1drv.ms/u/s!AmRLLNf6bzcir8xemVHbqPBrvjjtQg?e=hAhYCw). For GQA dataset, For the GQA dataset, we trained a new object detector which can be downloaded from [this link](https://drive.google.com/file/d/1RHiIZRFyclii9X3FGd-bS9zIl94jsTTx/view?usp=drive_link). 
+
+Put the checkpoint into the folder:
 ```
 mkdir -p checkpoints/detection/pretrained_faster_rcnn/
-# for VG
-mv /path/vg_faster_det.pth checkpoints/detection/pretrained_faster_rcnn/
+mv /path/gqa_det.pth checkpoints/detection/pretrained_faster_rcnn/
+mv /path/gqa_det.pth checkpoints/detection/pretrained_faster_rcnn/
 ```
 
-Then, you need to modify the pretrained weight parameter `MODEL.PRETRAINED_DETECTOR_CKPT` in configs yaml `configs/e2e_relBGNN_vg-oiv6-oiv4.yaml` to the path of corresponding pretrained rcnn weight to make sure you load the detection weight parameter correctly.
 
-
-
+<!--
 ### Scene Graph Generation Model
 You can follow the following instructions to train your own, which takes 4 GPUs for train each SGG model. The results should be very close to the reported results given in paper.
 

@@ -1,6 +1,8 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 import ipdb
 import torch
+import pickle
+import numpy as np
 
 
 from pysgg.modeling.roi_heads.relation_head.model_gpsnet import GPSNetContext
@@ -964,14 +966,21 @@ class AGRCNNPredictor(nn.Module):
         return obj_pred_logits, rel_cls_logits, add_losses
 
 
-@registry.ROI_RELATION_PREDICTOR.register("MotifPredictor")
-class MotifPredictor(nn.Module):
+@registry.ROI_RELATION_PREDICTOR.register("MotifsLikePredictor")
+class MotifsLikePredictor(nn.Module):
     def __init__(self, config, in_channels):
-        super(MotifPredictor, self).__init__()
+        super(MotifsLikePredictor, self).__init__()
         self.attribute_on = config.MODEL.ATTRIBUTE_ON
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
         self.num_att_cls = config.MODEL.ROI_ATTRIBUTE_HEAD.NUM_ATTRIBUTES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'OIv6':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.OI_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.OI_NUM_CLASSES
 
         assert in_channels is not None
         num_inputs = in_channels
@@ -980,28 +989,28 @@ class MotifPredictor(nn.Module):
 
         # load class dict
         statistics = get_dataset_statistics(config)
-        obj_classes, rel_classes, att_classes = (
+        obj_classes, rel_classes = (
             statistics["obj_classes"],
             statistics["rel_classes"],
-            statistics["att_classes"],
+            #statistics["att_classes"],
         )
         assert self.num_obj_cls == len(obj_classes)
-        assert self.num_att_cls == len(att_classes)
         assert self.num_rel_cls == len(rel_classes)
+        #assert self.num_att_cls == len(att_classes)
         # init contextual lstm encoding
-        if self.attribute_on:
-            self.context_layer = AttributeLSTMContext(
-                config, obj_classes, att_classes, rel_classes, in_channels
-            )
-        else:
+        if config.GLOBAL_SETTING.BASIC_ENCODER == 'Motifs':
             self.context_layer = LSTMContext(config, obj_classes, rel_classes, in_channels)
+        elif config.GLOBAL_SETTING.BASIC_ENCODER == 'VTransE':
+            self.context_layer = VTransEFeature(config, obj_classes, rel_classes, in_channels)
+        else:
+            exit('wrong mode!')
 
         # post decoding
         self.hidden_dim = config.MODEL.ROI_RELATION_HEAD.CONTEXT_HIDDEN_DIM
         self.pooling_dim = config.MODEL.ROI_RELATION_HEAD.CONTEXT_POOLING_DIM
         self.post_emb = make_fc(self.hidden_dim, self.hidden_dim * 2)
         self.post_cat = make_fc(self.hidden_dim * 2, self.pooling_dim)
-        self.rel_compress = build_classifier(self.pooling_dim, self.num_rel_cls, bias=True)
+        self.rel_compress = build_classifier(self.pooling_dim, self.num_rel_cls, bias=True) # self.num_rel_cls
 
         # initialize layer parameters
         layer_init(self.post_emb, 10.0 * (1.0 / self.hidden_dim) ** 0.5, normal=True)
@@ -1026,7 +1035,8 @@ class MotifPredictor(nn.Module):
         if self.use_bias:
             # convey statistics into FrequencyBias to avoid loading again
             self.freq_bias = FrequencyBias(config, statistics)
-
+        
+        
     def init_classifier_weight(self):
         self.rel_compress.reset_parameters()
 
@@ -1119,6 +1129,252 @@ class MotifPredictor(nn.Module):
         # we use obj_preds instead of pred from obj_dists
         # because in decoder_rnn, preds has been through a nms stage
         add_losses = {}
+
+        if self.attribute_on:
+            att_dists = att_dists.split(num_objs, dim=0)
+            return (obj_dists, att_dists), rel_dists, add_losses
+        else:
+            return obj_dists, rel_dists, add_losses
+
+
+
+@registry.ROI_RELATION_PREDICTOR.register("MotifsLikePredictor_DPL")
+class MotifsLikePredictor_DPL(nn.Module):
+    def __init__(self, config, in_channels):
+        super(MotifsLikePredictor_DPL, self).__init__()
+        self.attribute_on = config.MODEL.ATTRIBUTE_ON
+        self.num_att_cls = config.MODEL.ROI_ATTRIBUTE_HEAD.NUM_ATTRIBUTES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'OIv6':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.OI_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.OI_NUM_CLASSES
+            
+
+        assert in_channels is not None
+        num_inputs = in_channels
+        self.use_vision = config.MODEL.ROI_RELATION_HEAD.PREDICT_USE_VISION
+        self.use_bias = config.MODEL.ROI_RELATION_HEAD.FREQUENCY_BAIS
+
+        # load class dict
+        statistics = get_dataset_statistics(config)
+        obj_classes, rel_classes = (
+            statistics["obj_classes"],
+            statistics["rel_classes"],
+            #statistics["att_classes"],
+        )
+        assert self.num_obj_cls == len(obj_classes)
+        assert self.num_rel_cls == len(rel_classes)
+        #assert self.num_att_cls == len(att_classes)
+        # init contextual lstm encoding
+        if config.GLOBAL_SETTING.BASIC_ENCODER == 'Motifs':
+            self.context_layer = LSTMContext(config, obj_classes, rel_classes, in_channels)
+        elif config.GLOBAL_SETTING.BASIC_ENCODER == 'VTransE':
+            self.context_layer = VTransEFeature(config, obj_classes, rel_classes, in_channels)
+        else:
+            exit('wrong mode!')
+
+        # post decoding
+        self.hidden_dim = config.MODEL.ROI_RELATION_HEAD.CONTEXT_HIDDEN_DIM
+        self.pooling_dim = config.MODEL.ROI_RELATION_HEAD.CONTEXT_POOLING_DIM
+        self.post_emb = make_fc(self.hidden_dim, self.hidden_dim * 2)
+        self.post_cat = make_fc(self.hidden_dim * 2, self.pooling_dim)
+        self.cdim = config.MODEL.ROI_RELATION_HEAD.DPL.N_DIM
+        self.rel_compress = build_classifier(self.pooling_dim, self.cdim, bias=True) # self.num_rel_cls
+
+        # initialize layer parameters
+        layer_init(self.post_emb, 10.0 * (1.0 / self.hidden_dim) ** 0.5, normal=True)
+        layer_init(self.post_cat, xavier=True)
+
+        self.init_classifier_weight()
+
+        if self.pooling_dim != config.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM:
+            self.union_single_not_match = True
+            self.up_dim = make_fc(config.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM, self.pooling_dim)
+            layer_init(self.up_dim, xavier=True)
+        else:
+            self.union_single_not_match = False
+
+        self.use_obj_recls_logits = config.MODEL.ROI_RELATION_HEAD.REL_OBJ_MULTI_TASK_LOSS
+        self.use_obj_recls_labels = config.MODEL.ROI_RELATION_HEAD.OBJECT_CLASSIFICATION_REFINE
+        self.obj_recls_logits_update_manner = (
+            config.MODEL.ROI_RELATION_HEAD.OBJECT_CLASSIFICATION_MANNER
+        )
+        assert self.obj_recls_logits_update_manner in ["replace", "add"]
+
+        if self.use_bias:
+            # convey statistics into FrequencyBias to avoid loading again
+            self.freq_bias = FrequencyBias(config, statistics)
+
+
+        self.proto_emb = nn.Parameter(torch.zeros(self.num_rel_cls, self.cdim), requires_grad=True)
+        nn.init.orthogonal_(self.proto_emb)
+
+        self.gaussian_emb = nn.Linear(self.cdim, self.cdim * 2)
+        self.shift = nn.Parameter(torch.ones(1) * 15)
+        self.negative_scale = nn.Parameter(torch.ones(1) * 15)
+        self.sample_size = config.MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE
+        self.alpha = config.MODEL.ROI_RELATION_HEAD.DPL.ALPHA
+        self.radius = config.MODEL.ROI_RELATION_HEAD.DPL.RADIUS
+        
+        if config.MODEL.ROI_RELATION_HEAD.DPL.FREQ_BASED_N:
+            rel_counts_path = "/home/users/jaehyeong/papers/DPL/PySGG/pred_counts.pkl"  #"/home/user/sg/VETO/pred_counts.pkl"
+            with open(rel_counts_path, 'rb') as f:
+                rel_counts = pickle.load(f)
+        
+            self.sample_size_array = np.round(np.log(rel_counts) * 0.42, 0).astype(int) # 0.55 0.42
+            #self.sample_size_array = np.round(np.log(rel_counts) * 0.8 - 4, 0).astype(int)
+            for e in range(len(self.sample_size_array)):
+                if self.sample_size_array[e] < 1:
+                    self.sample_size_array[e] = 1
+        else:
+            self.sample_size_array = np.ones(self.num_rel_cls).astype(int)
+            self.sample_size_array = self.sample_size_array * self.sample_size
+        
+        self.rel_labels = None
+        
+        
+    def init_classifier_weight(self):
+        self.rel_compress.reset_parameters()
+
+    def forward(
+        self,
+        proposals,
+        rel_pair_idxs,
+        rel_labels,
+        rel_binarys,
+        roi_features,
+        union_features,
+        logger=None,
+    ):
+        """
+        vectors are batch concatenated features
+        :param proposals:
+        :param rel_pair_idxs:
+        :param rel_labels: relation labels for computing the loss
+        :param rel_binarys: relation proposal predict
+        :param roi_features: object features
+        :param union_features: union box ROI features of object in relation
+        :param logger:
+        Returns:
+            obj_dists (list[Tensor]): logits of object label distribution
+            rel_dists (list[Tensor])
+            rel_pair_idxs (list[Tensor]): (num_rel, 2) index of subject and object
+            union_features (Tensor): (batch_num_rel, context_pooling_dim): visual union feature of each pair
+        """
+        # encode context infomation
+        if self.attribute_on:
+            obj_dists, obj_preds, att_dists, edge_ctx = self.context_layer(
+                roi_features, proposals, logger
+            )
+        else:
+            obj_dists, obj_preds, edge_ctx, _ = self.context_layer(
+                roi_features, proposals, logger
+            )
+
+        # post decode
+        edge_rep = self.post_emb(edge_ctx)
+        edge_rep = edge_rep.view(edge_rep.size(0), 2, self.hidden_dim)
+        head_rep = edge_rep[:, 0].contiguous().view(-1, self.hidden_dim)
+        tail_rep = edge_rep[:, 1].contiguous().view(-1, self.hidden_dim)
+
+        num_rels = [r.shape[0] for r in rel_pair_idxs]
+        num_objs = [len(b) for b in proposals]
+        assert len(num_rels) == len(num_objs)
+
+        head_reps = head_rep.split(num_objs, dim=0)
+        tail_reps = tail_rep.split(num_objs, dim=0)
+        obj_preds = obj_preds.split(num_objs, dim=0)
+        if not self.use_obj_recls_labels:
+            obj_preds = [each.get_field("pred_labels") for each in proposals]
+
+        prod_reps = []
+        pair_preds = []
+        for pair_idx, head_rep, tail_rep, obj_pred in zip(
+            rel_pair_idxs, head_reps, tail_reps, obj_preds
+        ):
+            prod_reps.append(
+                torch.cat((head_rep[pair_idx[:, 0]], tail_rep[pair_idx[:, 1]]), dim=-1)
+            )
+            pair_preds.append(
+                torch.stack((obj_pred[pair_idx[:, 0]], obj_pred[pair_idx[:, 1]]), dim=1)
+            )
+        prod_rep = cat(prod_reps, dim=0)
+        pair_pred = cat(pair_preds, dim=0)
+
+        prod_rep = self.post_cat(prod_rep)
+
+        # multiply the relation features from the pairs objects and the relationships
+        # pairs union
+        if self.use_vision:
+            if self.union_single_not_match:
+                prod_rep = prod_rep * self.up_dim(union_features)
+            else:
+                prod_rep = prod_rep * union_features
+
+        deter_dists = self.rel_compress(prod_rep)
+        
+        add_losses = {}
+
+        predicate_proto = self.proto_emb     
+        predicate_proto_norm = predicate_proto / predicate_proto.norm(dim=1, keepdim=True)
+
+        n_dim = predicate_proto.size()[-1]
+        num_rel = prod_rep.size()[0]
+
+        gaussian = self.gaussian_emb(predicate_proto_norm)
+        self.mu, self.logsigma = torch.split(gaussian, self.cdim, dim=1)
+
+        rel_rep_expand = deter_dists.unsqueeze(dim=1).expand(-1, self.num_rel_cls, -1)
+        predicate_proto_expand = predicate_proto_norm.unsqueeze(dim=0).expand(num_rel, -1, -1)
+        distance_set = (rel_rep_expand - predicate_proto_expand).norm(dim=2)  
+
+        rel_dists = -self.negative_scale * distance_set + self.shift
+
+        if self.training:
+            
+            rel_labels = cat(rel_labels, dim=0)
+            self.rel_labels = rel_labels
+            
+            detach_proto = predicate_proto_norm.detach()
+            z = sample_gaussian_tensors(detach_proto, self.logsigma, self.sample_size_array).view(-1, n_dim) 
+
+            #z_reshape = z.view(-1, n_dim)          # 같은 class 20개 + 이후 20개 + ...
+
+            proto_sim = torch.matmul(predicate_proto_norm, predicate_proto_norm.t()) 
+            ortho_loss = get_orth_loss(proto_sim)
+            add_losses.update({"ortho loss": ortho_loss})
+            
+            r = self.radius #* self.logsigma.detach().exp().norm(dim=1)[rel_labels] #self.radius[rel_labels]
+            distance_set_z = distance(deter_dists, z)
+
+            alpha = self.alpha
+            distance_set_m = get_min_dists_z(distance_set_z, self.sample_size_array) #get_min_dists_z(distance_set_z,  predicate_proto_norm.shape[0], self.sample_size, 1)
+            selected_distance = distance_set_m[torch.arange(rel_labels.size(0)), rel_labels]
+            zeros_s = torch.zeros(selected_distance.shape).cuda()
+            sample_loss = torch.mean(torch.where( selected_distance > r, torch.pow(selected_distance - r, 2), zeros_s))
+            #sample_loss = torch.mean(torch.where( selected_distance > r, selected_distance - r, zeros_s))
+            add_losses.update({"sample loss": sample_loss * alpha})
+
+        else:
+                        
+            nd = ((rel_rep_expand - predicate_proto_expand) / (self.logsigma.exp())).norm(dim=2) 
+            ndn = ( nd.t() /nd.max(dim=1)[0] * distance_set.max(dim=1)[0] ).t()
+            rel_dists = -self.negative_scale * ndn + self.shift
+
+
+        if self.use_bias:
+            rel_dists = rel_dists + self.freq_bias.index_with_labels(pair_pred.long())
+
+        obj_dists = obj_dists.split(num_objs, dim=0)
+        rel_dists = rel_dists.split(num_rels, dim=0)
+
+        if not self.use_obj_recls_logits:
+            obj_dists = [each.get_field("predict_logits") for each in proposals]
 
         if self.attribute_on:
             att_dists = att_dists.split(num_objs, dim=0)
