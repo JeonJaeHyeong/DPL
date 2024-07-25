@@ -15,7 +15,7 @@ Check [DATASET.md](DATASET.md) for instructions of dataset preprocessing.
 
 ## Pretrained Models
 
-For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://1drv.ms/u/s!AmRLLNf6bzcir8xemVHbqPBrvjjtQg?e=hAhYCw). For GQA dataset, For the GQA dataset, we trained a new object detector which can be downloaded from [this link](https://drive.google.com/file/d/1RHiIZRFyclii9X3FGd-bS9zIl94jsTTx/view?usp=drive_link). 
+For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://1drv.ms/u/s!AmRLLNf6bzcir8xemVHbqPBrvjjtQg?e=hAhYCw). For GQA dataset, we trained a new object detector which can be downloaded from [this link](https://drive.google.com/file/d/1RHiIZRFyclii9X3FGd-bS9zIl94jsTTx/view?usp=drive_link). 
 
 Put the checkpoint into the folder:
 ```
@@ -24,6 +24,7 @@ mv /path/gqa_det.pth checkpoints/detection/pretrained_faster_rcnn/
 mv /path/gqa_det.pth checkpoints/detection/pretrained_faster_rcnn/
 ```
 
+Please wait a moment until the repository is complete.
 
 <!--
 ### Scene Graph Generation Model
