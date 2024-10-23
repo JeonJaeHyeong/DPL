@@ -2,6 +2,8 @@
 
 This is the official code for ECCV 2024 paper [Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation](https://arxiv.org/abs/2407.15396).
 
+The code is expected to be completed by the end of October. Currently, it is not functional yet. Please wait a little longer.
+
 ## Installation
 
 Check [INSTALL.md](INSTALL.md) for installation instructions, the recommended configuration is cuda-11.1 & pytorch-1.8.2.  
