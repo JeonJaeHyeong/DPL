@@ -2,11 +2,9 @@
 
 This is the official code for ECCV 2024 paper [Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation](https://arxiv.org/abs/2407.15396).
 
-Please wait a bit longer for the repository to be completed.
-
 ## Installation
 
-Check [INSTALL.md](INSTALL.md) for installation instructions.
+Check [INSTALL.md](INSTALL.md) for installation instructions, the recommended configuration is cuda-11.1 & pytorch-1.8.2.  
 
 ## Dataset
 
@@ -15,62 +13,151 @@ Check [DATASET.md](DATASET.md) for instructions of dataset preprocessing.
 
 ## Pretrained Models
 
-For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://1drv.ms/u/s!AmRLLNf6bzcir8xemVHbqPBrvjjtQg?e=hAhYCw). For GQA dataset, we trained a new object detector which can be downloaded from [this link](https://drive.google.com/file/d/1RHiIZRFyclii9X3FGd-bS9zIl94jsTTx/view?usp=drive_link). 
+1. For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). 
+2. For GQA dataset, we trained a new object detector which can be downloaded from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). However, for better results, we suggest pretraining a new model on GQA, as we did not pretrain it multiple times to select the best pre-trained model.
 
-Put the checkpoint into the folder:
+
+## Perform training on Scene Graph Generation
+
+### Set the dataset path
+
+First, please refer to the ```pysgg/config/paths_catalog.py``` and set the ```DATA_DIR``` to be your dataset path, and organize all the files like this:
+```bash
+datasets
+  |--vg   
+    |--glove
+      |--.... (glove files, will autoly download)
+    |--VG_100K
+      |--.... (images)
+    |--VG-SGG-with-attri.h5 
+    |--VG-SGG-dicts-with-attri.json
+    |--image_data.json    
+  |--gqa
+    |--images
+      |--.... (images)
+    |--GQA_200_ID_Info.json
+    |--GQA_200_Train.json
+    |--GQA_200_Test.json
+
+  |--detector_model
+    |--pretrained_faster_rcnn
+      |-vg_det.pth
+    |--GQA
+      |--gqa_det.pth
+
 ```
-mkdir -p checkpoints/detection/pretrained_faster_rcnn/
-mv /path/gqa_det.pth checkpoints/detection/pretrained_faster_rcnn/
-mv /path/gqa_det.pth checkpoints/detection/pretrained_faster_rcnn/
+
+### Choose a dataset
+
+You can choose the training/testing dataset by setting the following parameter:
+``` bash
+GLOBAL_SETTING.DATASET_CHOICE 'VG'  # ['VG', 'GQA_200', 'OIV6']
 ```
 
-Please wait a moment until the repository is complete.
+### Choose a task
 
-<!--
-### Scene Graph Generation Model
-You can follow the following instructions to train your own, which takes 4 GPUs for train each SGG model. The results should be very close to the reported results given in paper.
+To comprehensively evaluate the performance, we follow three conventional tasks: 1) **Predicate Classification (PredCls)** predicts the relationships of all the pairwise objects by employing the given ground-truth bounding boxes and classes; 2) **Scene Graph Classification (SGCls)** predicts the objects classes and their pairwise relationships by employing the given ground-truth object bounding boxes; and 3) **Scene Graph Detection (SGDet)** detects all the objects in an image, and predicts their bounding boxes, classes, and pairwise relationships.
 
-We provide the one-click script for training our BGNN model( in `scripts/rel_train_BGNN_[vg/oiv6/oiv4].sh`)
-or you can copy the following command to train
+For **Predicate Classification (PredCls)**, you need to set:
+``` bash
+MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True
 ```
-gpu_num=4 && python -m torch.distributed.launch --master_port 10028 --nproc_per_node=$gpu_num \
-       tools/relation_train_net.py \
-       --config-file "configs/e2e_relBGNN_vg.yaml" \
-        DEBUG False \
-        EXPERIMENT_NAME "BGNN-3-3" \
-        SOLVER.IMS_PER_BATCH $[3*$gpu_num] \
-        TEST.IMS_PER_BATCH $[$gpu_num] \
-        SOLVER.VAL_PERIOD 3000 \
-        SOLVER.CHECKPOINT_PERIOD 3000 
-
+For **Scene Graph Classification (SGCls)**:
+``` bash
+MODEL.ROI_RELATION_HEAD.USE_GT_BOX True MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL False
 ```
-We also provide the trained model pth of [BGNN(vg)](https://shanghaitecheducn-my.sharepoint.com/:u:/g/personal/lirj2_shanghaitech_edu_cn/Ee4PdxluTphEicUDckJIfmEBisAyUgkjeuerN_rjrG1CIw?e=pgr8a5),[BGNN(oiv6)](https://shanghaitecheducn-my.sharepoint.com/:u:/g/personal/lirj2_shanghaitech_edu_cn/EdKOrWAOf4hMiDWbR3CgYrMB9w7ZwWul-Wc6IUSbs51Idw?e=oEEHIQ)
+For **Scene Graph Detection (SGDet)**:
+``` bash
+MODEL.ROI_RELATION_HEAD.USE_GT_BOX False MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL False
+```
+
+### Examples of the Training Command
 
 
+Motifs + DPL for PredCls Task.
+```bash
+OUTPATH=$EXP/VG/motif/predcls/DPL
+mkdir -p $OUTPATH
 
-## Test
-Similarly, we also provide the `rel_test.sh` for directly produce the results from the checkpoint provide by us.
-By replacing the parameter of `MODEL.WEIGHT` to the trained model weight and selected dataset name in `DATASETS.TEST`, you can directly eval the model on validation or test set.
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --nproc_per_node=1 \
+    --config-file "configs/e2e_relation_X_101_32_8_FPN_1x.yaml" \
+    MODEL.ROI_RELATION_HEAD.USE_GT_BOX True \
+    MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True \
+    OUTPUT_DIR $OUTPATH  \
+    MODEL.ROI_RELATION_HEAD.PREDICTOR MotifsLikePredictor_DPL \
+    GLOBAL_SETTING.BASIC_ENCODER Motifs \
+    SOLVER.IMS_PER_BATCH $[3*$gpu_num] \
+    TEST.IMS_PER_BATCH $[$3*$gpu_num] \
+    SOLVER.MAX_ITER 60000 \
+    SOLVER.VAL_PERIOD 2000 \
+    SOLVER.CHECKPOINT_PERIOD 2000 \
+    MODEL.ROI_RELATION_HEAD.DPL.N_DIM 128   \
+    MODEL.ROI_RELATION_HEAD.DPL.ALPHA 10    \
+    MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE 20      \
+    MODEL.ROI_RELATION_HEAD.DPL.RADIUS 1.0     \
+    GLOBAL_SETTING.DATASET_CHOICE "VG" \
+```
 
+
+VCTree + DPL for PredCls Task.
+```bash
+OUTPATH=$EXP/VG/motif/predcls/DPL
+mkdir -p $OUTPATH
+
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --nproc_per_node=1 \
+    --config-file "configs/e2e_relation_X_101_32_8_FPN_1x.yaml" \
+    MODEL.ROI_RELATION_HEAD.USE_GT_BOX True \
+    MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True \
+    OUTPUT_DIR $OUTPATH  \
+    MODEL.ROI_RELATION_HEAD.PREDICTOR VCTreePredictor_DPL \
+    GLOBAL_SETTING.BASIC_ENCODER Motifs \
+    SOLVER.IMS_PER_BATCH $[3*$gpu_num] \
+    TEST.IMS_PER_BATCH $[$3*$gpu_num] \
+    SOLVER.MAX_ITER 60000 \
+    SOLVER.VAL_PERIOD 2000 \
+    SOLVER.CHECKPOINT_PERIOD 2000 \
+    MODEL.ROI_RELATION_HEAD.DPL.N_DIM 128   \
+    MODEL.ROI_RELATION_HEAD.DPL.ALPHA 10    \
+    MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE 20      \
+    MODEL.ROI_RELATION_HEAD.DPL.RADIUS 1.0     \
+    GLOBAL_SETTING.DATASET_CHOICE "VG" \
+```
+
+## Evaluation
+
+You provide the trained model from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). You can evaluate it by running the following command.
+
+```bash
+export gpu_num=1
+
+checkpoint_dir="your_dir"
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --nproc_per_node=1 \
+    tools/relation_test_net.py \
+    --config-file "$checkpoint_dir/config.yml" \
+    TEST.IMS_PER_BATCH $[$gpu_num] \
+    MODEL.ROI_RELATION_HEAD.EVALUATE_REL_PROPOSAL False \
+    TEST.ALLOW_LOAD_FROM_CACHE True \
+```
 
 ## Citations
 
 If you find this project helps your research, please kindly consider citing our papers in your publications.
 
 ```
-@InProceedings{Li_2021_CVPR,
-    author    = {Li, Rongjie and Zhang, Songyang and Wan, Bo and He, Xuming},
-    title     = {Bipartite Graph Network With Adaptive Message Passing for Unbiased Scene Graph Generation},
-    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-    month     = {June},
-    year      = {2021},
-    pages     = {11109-11119}
+@article{jeon2024semantic,
+  title={Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation},
+  author={Jeon, Jaehyeong and Kim, Kibum and Yoon, Kanghoon and Park, Chanyoung},
+  journal={arXiv preprint arXiv:2407.15396},
+  year={2024}
 }
 ```
 
 
 ## Acknowledgment
-This repository is developed on top of the scene graph benchmarking framwork develped by [KaihuaTang](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch)
+This repository is developed on top of the following code bases:
 
+Scene graph benchmarking framework develped by [KaihuaTang](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch)
+A Toolkit for Scene Graph Benchmark in Pytorch by [Rongjie Li](https://github.com/SHTUPLUS/PySGG)
+Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation in Pytorch by [Xingning Dong](https://github.com/dongxingning/SHA-GCL-for-SGG)
 
 -->

@@ -2,6 +2,7 @@
 import os
 
 from yacs.config import CfgNode as CN
+from pysgg.config.paths_catalog import DatasetCatalog
 
 # -----------------------------------------------------------------------------
 # Convention about Training / Test specific parameters
@@ -43,9 +44,10 @@ _C.MODEL.CLS_AGNOSTIC_BBOX_REG = False
 _C.MODEL.WEIGHT = ""
 
 # checkpoint of detector, for relation prediction
-_C.MODEL.PRETRAINED_DETECTOR_CKPT = ""
-_C.MODEL.PRETRAINED_DETECTOR_CKPT_GQA = ""
-_C.MODEL.PRETRAINED_DETECTOR_CKPT_VG = ""
+_C.MODEL.PRETRAINED_DETECTOR_CKPT_VG = DatasetCatalog.DATA_DIR+\
+                                    "datasets/detector_model/vg_det.pth"
+_C.MODEL.PRETRAINED_DETECTOR_CKPT_GQA = DatasetCatalog.DATA_DIR+\
+                                    "datasets/detector_model/gqa/gqa_det.pth"
 # -----------------------------------------------------------------------------
 # INPUT
 # -----------------------------------------------------------------------------
@@ -816,7 +818,7 @@ _C.TEST.ALLOW_LOAD_FROM_CACHE = False
 # Misc options
 # ---------------------------------------------------------------------------- #
 _C.OUTPUT_DIR = "./checkpoints"
-_C.GLOVE_DIR = "datasets/vg/stanford_spilt/glove"
+_C.GLOVE_DIR = DatasetCatalog.DATA_DIR+"datasets/vg/glove"
 
 _C.PATHS_CATALOG = os.path.join(os.path.dirname(__file__), "paths_catalog.py")
 _C.PATHS_DATA = os.path.join(os.path.dirname(__file__), "../data/datasets")
@@ -830,3 +832,12 @@ _C.DTYPE = "float32"
 
 # Enable verbosity in apex.amp
 _C.AMP_VERBOSE = False
+
+_C.GLOBAL_SETTING = CN()
+_C.GLOBAL_SETTING.DATASET_CHOICE = 'VG'
+_C.GLOBAL_SETTING.BASIC_ENCODER = 'Motifs'  # 'VTransE'
+_C.GLOBAL_SETTING.CHOOSE_BEST_MODEL_BY_METRIC = '_mean_recall'
+
+
+_C.DPL = CN()
+_C.DPL.FREQ_BASED_N = 'VG'

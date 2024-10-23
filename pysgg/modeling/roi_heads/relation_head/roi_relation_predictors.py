@@ -1150,9 +1150,6 @@ class MotifsLikePredictor_DPL(nn.Module):
         elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
             self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
             self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
-        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'OIv6':
-            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.OI_NUM_CLASSES
-            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.OI_NUM_CLASSES
             
 
         assert in_channels is not None
@@ -1170,7 +1167,7 @@ class MotifsLikePredictor_DPL(nn.Module):
         assert self.num_obj_cls == len(obj_classes)
         assert self.num_rel_cls == len(rel_classes)
         #assert self.num_att_cls == len(att_classes)
-        # init contextual lstm encoding
+
         if config.GLOBAL_SETTING.BASIC_ENCODER == 'Motifs':
             self.context_layer = LSTMContext(config, obj_classes, rel_classes, in_channels)
         elif config.GLOBAL_SETTING.BASIC_ENCODER == 'VTransE':
