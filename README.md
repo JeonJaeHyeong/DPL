@@ -141,7 +141,7 @@ This will allow more samples to be allocated to head classes and fewer samples t
 
 ## Evaluation
 
-You provide the trained model from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). You can evaluate it by running the following command.
+We provide the trained model from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). You can evaluate it by running the following command.
 
 ```bash
 export gpu_num=1
