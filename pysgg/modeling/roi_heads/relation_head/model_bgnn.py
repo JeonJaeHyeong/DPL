@@ -281,7 +281,10 @@ class BGNNContext(nn.Module):
             self.cfg.MODEL.ROI_RELATION_HEAD.RELATION_PROPOSAL_MODEL.METHOD
         )
 
-        self.num_rel_cls = self.cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
 
         self.relness_weighting_mp = False
         self.gating_with_relness_logits = False

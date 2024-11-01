@@ -42,7 +42,8 @@ MODEL:
     POOLER_SAMPLING_RATIO: 2
     FEATURE_EXTRACTOR: "FPN2MLPFeatureExtractor"
     PREDICTOR: "FPNPredictor"
-    NUM_CLASSES: 151                # 151 for VG, 1201 for GQA
+    VG_NUM_CLASSES: 151                # 151 for VG, 1201 for GQA
+    GQA_200_NUM_CLASSES: 201
     MLP_HEAD_DIM: 4096
   ROI_ATTRIBUTE_HEAD:
     FEATURE_EXTRACTOR: "FPN2MLPFeatureExtractor"
@@ -59,7 +60,8 @@ MODEL:
     USE_GT_OBJECT_LABEL: False
     REQUIRE_BOX_OVERLAP: False              # for sgdet, during training, only train pairs with overlap
     ADD_GTBOX_TO_PROPOSAL_IN_TRAIN: True    # for sgdet only, in case some gt boxes are missing
-    NUM_CLASSES: 51                 # 51 for VG, 201 for GQA (not contain "to the left of" & "to the right of")
+    VG_NUM_CLASSES: 51                
+    GQA_200_NUM_CLASSES: 101
     BATCH_SIZE_PER_IMAGE: 1024      # sample as much as possible
     POSITIVE_FRACTION: 0.25
     CONTEXT_POOLING_DIM: 4096
@@ -94,9 +96,12 @@ MODEL:
       VAL_DIM: 64
       INNER_DIM: 2048 
 DATASETS:
-  TRAIN: ("VG_stanford_filtered_with_attribute_train",)
-  VAL: ("VG_stanford_filtered_with_attribute_val",)
-  TEST: ("VG_stanford_filtered_with_attribute_test",)
+  VG_TRAIN: ("VG_stanford_filtered_with_attribute_train",)
+  VG_VAL: ("VG_stanford_filtered_with_attribute_val",)
+  VG_TEST: ("VG_stanford_filtered_with_attribute_test",)
+  GQA_200_TRAIN: ("GQA_200_train",)
+  GQA_200_VAL: ("GQA_200_val",)
+  GQA_200_TEST: ("GQA_200_test",)
 DATALOADER:
   SIZE_DIVISIBILITY: 32
 SOLVER:

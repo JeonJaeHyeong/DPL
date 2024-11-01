@@ -11,7 +11,11 @@ from pysgg.modeling import registry
 class MaskRCNNC4Predictor(nn.Module):
     def __init__(self, cfg, in_channels):
         super(MaskRCNNC4Predictor, self).__init__()
-        num_classes = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            num_classes = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            num_classes = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+        
         dim_reduced = cfg.MODEL.ROI_MASK_HEAD.CONV_LAYERS[-1]
         num_inputs = in_channels
 
@@ -35,7 +39,10 @@ class MaskRCNNC4Predictor(nn.Module):
 class MaskRCNNConv1x1Predictor(nn.Module):
     def __init__(self, cfg, in_channels):
         super(MaskRCNNConv1x1Predictor, self).__init__()
-        num_classes = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            num_classes = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            num_classes = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
         num_inputs = in_channels
 
         self.mask_fcn_logits = Conv2d(num_inputs, num_classes, 1, 1, 0)

@@ -32,8 +32,12 @@ class ROIRelationHead(torch.nn.Module):
         super(ROIRelationHead, self).__init__()
         self.cfg = cfg.clone()
 
-        self.num_obj_cls = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
 
         # mode
         if cfg.MODEL.ROI_RELATION_HEAD.USE_GT_BOX:

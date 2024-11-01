@@ -59,11 +59,18 @@ def im_detect_bbox_aug(model, images, device):
         boxlist.add_field('scores', scores)
         boxlists.append(boxlist)
 
+    if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+        num_classes = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+    elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+        num_classes = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+    else:
+        num_classes = None
+        exit('wrong Dataset choice')
     # Apply NMS and limit the final detections
     results = []
     post_processor = make_roi_box_post_processor(cfg)
     for boxlist in boxlists:
-        results.append(post_processor.filter_results(boxlist, cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES))
+        results.append(post_processor.filter_results(boxlist, num_classes))
 
     return results
 

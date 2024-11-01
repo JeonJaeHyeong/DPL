@@ -213,7 +213,10 @@ class GPSNetContext(nn.Module):
         self.hidden_dim = hidden_dim
         self.update_step = num_iter
         self.pooling_dim = self.cfg.MODEL.ROI_RELATION_HEAD.CONTEXT_POOLING_DIM
-        self.num_rel_cls = self.cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
 
         if self.update_step < 1:
             print(

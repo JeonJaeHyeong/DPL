@@ -49,9 +49,12 @@ class TransformerPredictor(nn.Module):
         super(TransformerPredictor, self).__init__()
         self.attribute_on = config.MODEL.ATTRIBUTE_ON
         # load parameters
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_att_cls = config.MODEL.ROI_ATTRIBUTE_HEAD.NUM_ATTRIBUTES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
 
         assert in_channels is not None
         num_inputs = in_channels
@@ -63,10 +66,10 @@ class TransformerPredictor(nn.Module):
         obj_classes, rel_classes, att_classes = (
             statistics["obj_classes"],
             statistics["rel_classes"],
-            statistics["att_classes"],
+            #statistics["att_classes"],
         )
         assert self.num_obj_cls == len(obj_classes)
-        assert self.num_att_cls == len(att_classes)
+        #assert self.num_att_cls == len(att_classes)
         assert self.num_rel_cls == len(rel_classes)
         # module construct
         self.context_layer = TransformerContext(config, obj_classes, rel_classes, in_channels)
@@ -182,8 +185,12 @@ class TransformerPredictor(nn.Module):
 class IMPPredictor(nn.Module):
     def __init__(self, config, in_channels):
         super(IMPPredictor, self).__init__()
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.use_bias = config.MODEL.ROI_RELATION_HEAD.FREQUENCY_BAIS
 
         # mode
@@ -297,8 +304,12 @@ class IMPPredictor(nn.Module):
 class MSDNPredictor(nn.Module):
     def __init__(self, config, in_channels):
         super(MSDNPredictor, self).__init__()
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.use_bias = config.MODEL.ROI_RELATION_HEAD.FREQUENCY_BAIS
 
         # mode
@@ -489,8 +500,12 @@ class MSDNPredictor(nn.Module):
 class BGNNPredictor(nn.Module):
     def __init__(self, config, in_channels):
         super(BGNNPredictor, self).__init__()
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.use_bias = config.MODEL.ROI_RELATION_HEAD.FREQUENCY_BAIS
 
         # mode
@@ -684,8 +699,12 @@ class BGNNPredictor(nn.Module):
 class GPSNetPredictor(nn.Module):
     def __init__(self, config, in_channels):
         super(GPSNetPredictor, self).__init__()
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.use_bias = config.MODEL.ROI_RELATION_HEAD.FREQUENCY_BAIS
 
         # mode
@@ -831,8 +850,12 @@ class GPSNetPredictor(nn.Module):
 class AGRCNNPredictor(nn.Module):
     def __init__(self, config, in_channels):
         super(AGRCNNPredictor, self).__init__()
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.use_bias = config.MODEL.ROI_RELATION_HEAD.FREQUENCY_BAIS
 
         # mode
@@ -1214,20 +1237,22 @@ class MotifsLikePredictor_DPL(nn.Module):
         self.gaussian_emb = nn.Linear(self.cdim, self.cdim * 2)
         self.shift = nn.Parameter(torch.ones(1) * 15)
         self.negative_scale = nn.Parameter(torch.ones(1) * 15)
-        self.sample_size = config.MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE
+        self.sample_size = config.MODEL.ROI_RELATION_HEAD.DPL.AVG_NUM_SAMPLE
         self.alpha = config.MODEL.ROI_RELATION_HEAD.DPL.ALPHA
         self.radius = config.MODEL.ROI_RELATION_HEAD.DPL.RADIUS
         
-        if config.MODEL.ROI_RELATION_HEAD.DPL.FREQ_BASED_N:
-            rel_counts_path = "/home/users/jaehyeong/papers/DPL/PySGG/pred_counts.pkl"  #"/home/user/sg/VETO/pred_counts.pkl"
+        if config.MODEL.ROI_RELATION_HEAD.DPL.FREQ_BASED_DIFF_N:
+            rel_counts_path = "/home/users/jaehyeong/papers/DPL/PySGG/pred_counts.pkl"  # put your pred_counts.pkl path
             with open(rel_counts_path, 'rb') as f:
                 rel_counts = pickle.load(f)
         
-            self.sample_size_array = np.round(np.log(rel_counts) * 0.42, 0).astype(int) # 0.55 0.42
-            #self.sample_size_array = np.round(np.log(rel_counts) * 0.8 - 4, 0).astype(int)
+            log_counts = np.log(rel_counts)
+            self.sample_size_array = np.round(log_counts / log_counts.mean() * self.sample_size, 0).astype(int) # 0.42 is arbitary value.
             for e in range(len(self.sample_size_array)):
                 if self.sample_size_array[e] < 1:
                     self.sample_size_array[e] = 1
+                    
+            
         else:
             self.sample_size_array = np.ones(self.num_rel_cls).astype(int)
             self.sample_size_array = self.sample_size_array * self.sample_size
@@ -1340,13 +1365,11 @@ class MotifsLikePredictor_DPL(nn.Module):
             detach_proto = predicate_proto_norm.detach()
             z = sample_gaussian_tensors(detach_proto, self.logsigma, self.sample_size_array).view(-1, n_dim) 
 
-            #z_reshape = z.view(-1, n_dim)          # 같은 class 20개 + 이후 20개 + ...
-
             proto_sim = torch.matmul(predicate_proto_norm, predicate_proto_norm.t()) 
             ortho_loss = get_orth_loss(proto_sim)
             add_losses.update({"ortho loss": ortho_loss})
             
-            r = self.radius #* self.logsigma.detach().exp().norm(dim=1)[rel_labels] #self.radius[rel_labels]
+            r = self.radius
             distance_set_z = distance(deter_dists, z)
 
             alpha = self.alpha
@@ -1354,7 +1377,6 @@ class MotifsLikePredictor_DPL(nn.Module):
             selected_distance = distance_set_m[torch.arange(rel_labels.size(0)), rel_labels]
             zeros_s = torch.zeros(selected_distance.shape).cuda()
             sample_loss = torch.mean(torch.where( selected_distance > r, torch.pow(selected_distance - r, 2), zeros_s))
-            #sample_loss = torch.mean(torch.where( selected_distance > r, selected_distance - r, zeros_s))
             add_losses.update({"sample loss": sample_loss * alpha})
 
         else:
@@ -1385,9 +1407,12 @@ class VCTreePredictor(nn.Module):
     def __init__(self, config, in_channels):
         super(VCTreePredictor, self).__init__()
         self.attribute_on = config.MODEL.ATTRIBUTE_ON
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_att_cls = config.MODEL.ROI_ATTRIBUTE_HEAD.NUM_ATTRIBUTES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
 
         assert in_channels is not None
         num_inputs = in_channels
@@ -1397,10 +1422,10 @@ class VCTreePredictor(nn.Module):
         obj_classes, rel_classes, att_classes = (
             statistics["obj_classes"],
             statistics["rel_classes"],
-            statistics["att_classes"],
+            #statistics["att_classes"],
         )
         assert self.num_obj_cls == len(obj_classes)
-        assert self.num_att_cls == len(att_classes)
+        #assert self.num_att_cls == len(att_classes)
         assert self.num_rel_cls == len(rel_classes)
         # init contextual lstm encoding
         self.context_layer = VCTreeLSTMContext(
@@ -1520,6 +1545,227 @@ class VCTreePredictor(nn.Module):
         return obj_dists, rel_dists, add_losses
 
 
+@registry.ROI_RELATION_PREDICTOR.register("VCTreePredictor_DPL")
+class VCTreePredictor_DPL(nn.Module):
+    def __init__(self, config, in_channels):
+        super(VCTreePredictor_DPL, self).__init__()
+        self.attribute_on = config.MODEL.ATTRIBUTE_ON
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
+
+        assert in_channels is not None
+        num_inputs = in_channels
+
+        # load class dict
+        statistics = get_dataset_statistics(config)
+        obj_classes, rel_classes, att_classes = (
+            statistics["obj_classes"],
+            statistics["rel_classes"],
+            #statistics["att_classes"],
+        )
+        assert self.num_obj_cls == len(obj_classes)
+        #assert self.num_att_cls == len(att_classes)
+        assert self.num_rel_cls == len(rel_classes)
+        # init contextual lstm encoding
+        self.context_layer = VCTreeLSTMContext(
+            config, obj_classes, rel_classes, statistics, in_channels
+        )
+
+        # post decoding
+        self.hidden_dim = config.MODEL.ROI_RELATION_HEAD.CONTEXT_HIDDEN_DIM
+        self.pooling_dim = config.MODEL.ROI_RELATION_HEAD.CONTEXT_POOLING_DIM
+        self.post_emb = make_fc(self.hidden_dim, self.hidden_dim * 2)
+        self.post_cat = make_fc(self.hidden_dim * 2, self.pooling_dim)
+
+        # learned-mixin
+        # self.uni_gate = nn.Linear(self.pooling_dim, self.num_rel_cls)
+        # self.frq_gate = nn.Linear(self.pooling_dim, self.num_rel_cls)
+        self.ctx_compress = make_fc(self.pooling_dim, self.num_rel_cls)
+        # self.uni_compress = nn.Linear(self.pooling_dim, self.num_rel_cls)
+        # layer_init(self.uni_gate, xavier=True)
+        # layer_init(self.frq_gate, xavier=True)
+        layer_init(self.ctx_compress, xavier=True)
+        # layer_init(self.uni_compress, xavier=True)
+
+        # initialize layer parameters
+        layer_init(self.post_emb, 10.0 * (1.0 / self.hidden_dim) ** 0.5, normal=True)
+        layer_init(self.post_cat, xavier=True)
+
+        if self.pooling_dim != config.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM:
+            self.union_single_not_match = True
+            self.up_dim = make_fc(config.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM, self.pooling_dim)
+            layer_init(self.up_dim, xavier=True)
+        else:
+            self.union_single_not_match = False
+
+        self.freq_bias = FrequencyBias(config, statistics)
+
+        self.use_obj_recls_logits = config.MODEL.ROI_RELATION_HEAD.REL_OBJ_MULTI_TASK_LOSS
+        self.use_obj_recls_labels = config.MODEL.ROI_RELATION_HEAD.OBJECT_CLASSIFICATION_REFINE
+
+        self.proto_emb = nn.Parameter(torch.zeros(self.num_rel_cls, self.cdim), requires_grad=True)
+        nn.init.orthogonal_(self.proto_emb)
+
+        self.gaussian_emb = nn.Linear(self.cdim, self.cdim * 2)
+        self.shift = nn.Parameter(torch.ones(1) * 15)
+        self.negative_scale = nn.Parameter(torch.ones(1) * 15)
+        self.sample_size = config.MODEL.ROI_RELATION_HEAD.DPL.AVG_NUM_SAMPLE
+        self.alpha = config.MODEL.ROI_RELATION_HEAD.DPL.ALPHA
+        self.radius = config.MODEL.ROI_RELATION_HEAD.DPL.RADIUS
+        
+        if config.MODEL.ROI_RELATION_HEAD.DPL.FREQ_BASED_DIFF_N:
+            rel_counts_path = "/home/users/jaehyeong/papers/DPL/PySGG/pred_counts.pkl"  # put your pred_counts.pkl path
+            with open(rel_counts_path, 'rb') as f:
+                rel_counts = pickle.load(f)
+        
+            log_counts = np.log(rel_counts)
+            self.sample_size_array = np.round(log_counts / log_counts.mean() * self.sample_size, 0).astype(int) # 0.42 is arbitary value.
+            for e in range(len(self.sample_size_array)):
+                if self.sample_size_array[e] < 1:
+                    self.sample_size_array[e] = 1
+                    
+            
+        else:
+            self.sample_size_array = np.ones(self.num_rel_cls).astype(int)
+            self.sample_size_array = self.sample_size_array * self.sample_size
+        
+        self.rel_labels = None
+
+    def forward(
+        self,
+        proposals,
+        rel_pair_idxs,
+        rel_labels,
+        rel_binarys,
+        roi_features,
+        union_features,
+        logger=None,
+    ):
+        """
+        Returns:
+            obj_dists (list[Tensor]): logits of object label distribution
+            rel_dists (list[Tensor])
+            rel_pair_idxs (list[Tensor]): (num_rel, 2) index of subject and object
+            union_features (Tensor): (batch_num_rel, context_pooling_dim): visual union feature of each pair
+        """
+
+        # encode context infomation
+        obj_dists, obj_preds, edge_ctx, binary_preds = self.context_layer(
+            roi_features, proposals, rel_pair_idxs, logger
+        )
+
+        # post decode
+        edge_rep = F.relu(self.post_emb(edge_ctx))
+        edge_rep = edge_rep.view(edge_rep.size(0), 2, self.hidden_dim)
+        head_rep = edge_rep[:, 0].contiguous().view(-1, self.hidden_dim)
+        tail_rep = edge_rep[:, 1].contiguous().view(-1, self.hidden_dim)
+
+        num_rels = [r.shape[0] for r in rel_pair_idxs]
+        num_objs = [len(b) for b in proposals]
+        assert len(num_rels) == len(num_objs)
+
+        head_reps = head_rep.split(num_objs, dim=0)
+        tail_reps = tail_rep.split(num_objs, dim=0)
+        obj_preds = obj_preds.split(num_objs, dim=0)
+        if not self.use_obj_recls_labels:
+            obj_preds = [each.get_field("pred_labels") for each in proposals]
+
+        prod_reps = []
+        pair_preds = []
+        for pair_idx, head_rep, tail_rep, obj_pred in zip(
+            rel_pair_idxs, head_reps, tail_reps, obj_preds
+        ):
+            prod_reps.append(
+                torch.cat((head_rep[pair_idx[:, 0]], tail_rep[pair_idx[:, 1]]), dim=-1)
+            )
+            pair_preds.append(
+                torch.stack((obj_pred[pair_idx[:, 0]], obj_pred[pair_idx[:, 1]]), dim=1)
+            )
+        prod_rep = cat(prod_reps, dim=0)
+        pair_pred = cat(pair_preds, dim=0)
+
+        prod_rep = self.post_cat(prod_rep)
+
+        if self.use_vision:
+            if self.union_single_not_match:
+                prod_rep = prod_rep * self.up_dim(union_features)
+            else:
+                prod_rep = prod_rep * union_features
+
+        deter_dists = self.rel_compress(prod_rep)
+        
+        add_losses = {}
+
+        predicate_proto = self.proto_emb     
+        predicate_proto_norm = predicate_proto / predicate_proto.norm(dim=1, keepdim=True)
+
+        n_dim = predicate_proto.size()[-1]
+        num_rel = prod_rep.size()[0]
+
+        gaussian = self.gaussian_emb(predicate_proto_norm)
+        self.mu, self.logsigma = torch.split(gaussian, self.cdim, dim=1)
+
+        rel_rep_expand = deter_dists.unsqueeze(dim=1).expand(-1, self.num_rel_cls, -1)
+        predicate_proto_expand = predicate_proto_norm.unsqueeze(dim=0).expand(num_rel, -1, -1)
+        distance_set = (rel_rep_expand - predicate_proto_expand).norm(dim=2)  
+
+        rel_dists = -self.negative_scale * distance_set + self.shift
+
+        if self.training:
+            
+            rel_labels = cat(rel_labels, dim=0)
+            self.rel_labels = rel_labels
+            
+            detach_proto = predicate_proto_norm.detach()
+            z = sample_gaussian_tensors(detach_proto, self.logsigma, self.sample_size_array).view(-1, n_dim) 
+
+            proto_sim = torch.matmul(predicate_proto_norm, predicate_proto_norm.t()) 
+            ortho_loss = get_orth_loss(proto_sim)
+            add_losses.update({"ortho loss": ortho_loss})
+            
+            r = self.radius
+            distance_set_z = distance(deter_dists, z)
+
+            alpha = self.alpha
+            distance_set_m = get_min_dists_z(distance_set_z, self.sample_size_array) #get_min_dists_z(distance_set_z,  predicate_proto_norm.shape[0], self.sample_size, 1)
+            selected_distance = distance_set_m[torch.arange(rel_labels.size(0)), rel_labels]
+            zeros_s = torch.zeros(selected_distance.shape).cuda()
+            sample_loss = torch.mean(torch.where( selected_distance > r, torch.pow(selected_distance - r, 2), zeros_s))
+            add_losses.update({"sample loss": sample_loss * alpha})
+
+        else:
+                        
+            nd = ((rel_rep_expand - predicate_proto_expand) / (self.logsigma.exp())).norm(dim=2) 
+            ndn = ( nd.t() /nd.max(dim=1)[0] * distance_set.max(dim=1)[0] ).t()
+            rel_dists = -self.negative_scale * ndn + self.shift
+
+        frq_dists = self.freq_bias.index_with_labels(pair_pred.long())
+
+        rel_dists = rel_dists + frq_dists
+        # rel_dists = ctx_dists + uni_gate * uni_dists + frq_gate * frq_dists
+
+        obj_dists = obj_dists.split(num_objs, dim=0)
+        rel_dists = rel_dists.split(num_rels, dim=0)
+
+        if not self.use_obj_recls_logits:
+            obj_dists = [each.get_field("predict_logits") for each in proposals]
+        # we use obj_preds instead of pred from obj_dists
+        # because in decoder_rnn, preds has been through a nms stage
+
+        if self.training:
+            binary_loss = []
+            for bi_gt, bi_pred in zip(rel_binarys, binary_preds):
+                bi_gt = (bi_gt > 0).float()
+                binary_loss.append(F.binary_cross_entropy_with_logits(bi_pred, bi_gt))
+            add_losses["binary_loss"] = sum(binary_loss) / len(binary_loss)
+
+        return obj_dists, rel_dists, add_losses
+
+
 @registry.ROI_RELATION_PREDICTOR.register("NaivePredictor")
 class NaivePredictor(nn.Module):
     def __init__(self, config, in_channels):
@@ -1530,8 +1776,12 @@ class NaivePredictor(nn.Module):
         assert self.attribute_on == False
 
         self.spatial_for_vision = config.MODEL.ROI_RELATION_HEAD.CAUSAL.SPATIAL_FOR_VISION
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.separate_spatial = config.MODEL.ROI_RELATION_HEAD.CAUSAL.SEPARATE_SPATIAL
         self.effect_type = config.MODEL.ROI_RELATION_HEAD.CAUSAL.EFFECT_TYPE
 
@@ -1914,8 +2164,12 @@ class RelatednessTestPredictor(nn.Module):
         assert self.attribute_on == False
 
         self.spatial_for_vision = config.MODEL.ROI_RELATION_HEAD.CAUSAL.SPATIAL_FOR_VISION
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.separate_spatial = config.MODEL.ROI_RELATION_HEAD.CAUSAL.SEPARATE_SPATIAL
         self.effect_type = config.MODEL.ROI_RELATION_HEAD.CAUSAL.EFFECT_TYPE
 
@@ -2267,8 +2521,12 @@ class KERNPredictor(nn.Module):
         assert self.attribute_on == False
 
         self.spatial_for_vision = config.MODEL.ROI_RELATION_HEAD.CAUSAL.SPATIAL_FOR_VISION
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.separate_spatial = config.MODEL.ROI_RELATION_HEAD.CAUSAL.SEPARATE_SPATIAL
         self.effect_type = config.MODEL.ROI_RELATION_HEAD.CAUSAL.EFFECT_TYPE
 
@@ -2687,8 +2945,12 @@ class CausalAnalysisPredictor(nn.Module):
         self.cfg = config
         self.attribute_on = config.MODEL.ATTRIBUTE_ON
         self.spatial_for_vision = config.MODEL.ROI_RELATION_HEAD.CAUSAL.SPATIAL_FOR_VISION
-        self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if config.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif config.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_cls = config.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = config.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
         self.fusion_type = config.MODEL.ROI_RELATION_HEAD.CAUSAL.FUSION_TYPE
         self.separate_spatial = config.MODEL.ROI_RELATION_HEAD.CAUSAL.SEPARATE_SPATIAL
         self.use_vtranse = config.MODEL.ROI_RELATION_HEAD.CAUSAL.CONTEXT_LAYER == "vtranse"
@@ -3091,3 +3353,52 @@ class CausalAnalysisPredictor(nn.Module):
 def make_roi_relation_predictor(cfg, in_channels):
     func = registry.ROI_RELATION_PREDICTOR[cfg.MODEL.ROI_RELATION_HEAD.PREDICTOR]
     return func(cfg, in_channels)
+
+
+def sample_gaussian_tensors(mu, logsigma, num_samples):
+    
+    total_samples = sample_each(mu[0], logsigma[0], num_samples[0])
+    for i in range(1, mu.size(0)):
+        samples = sample_each(mu[i], logsigma[i], num_samples[i])
+        total_samples = torch.cat([total_samples, samples], dim=0)
+    #eps = torch.randn(mu.size(0), num_samples, mu.size(1), dtype=mu.dtype, device=mu.device)
+
+    #samples = eps.mul(torch.exp(logsigma.unsqueeze(1))).add_(   #torch.exp(logsigma.unsqueeze(1)) logsigma.unsqueeze(1)
+    #    mu.unsqueeze(1))
+    return total_samples #samples
+
+def sample_each(mu_i, logsigma_i, num_samples_i):
+    eps = torch.randn(num_samples_i, mu_i.size(0), dtype=mu_i.dtype, device=mu_i.device)
+
+    samples = eps.mul(torch.exp(logsigma_i)).add_(   #torch.exp(logsigma.unsqueeze(1)) logsigma.unsqueeze(1)
+        mu_i)
+    return samples
+
+
+def get_orth_loss(proto_sim):
+    '''
+        protos:   : [K1xK2] K1 <= K2
+    '''
+    eye_sim = torch.triu(torch.ones_like(proto_sim), diagonal=1)
+    loss_orth = torch.abs(proto_sim[eye_sim == 1]).mean()
+    return loss_orth
+
+
+def get_min_dists_z(rel_dists_z, num_samples):
+    #mean_dists_z = torch.mean(torch.sort(rel_dists_z.view([-1, batch_size, n]), 2, descending=False)[0][:, :, : p], 2) # [:, :, : n//4]
+    total_md = rel_dists_z[:, :num_samples[0]].sort(1, descending=False)[0][:, :1]
+    count = num_samples[0]
+    for i in range(1, len(num_samples)):
+        md = rel_dists_z[:, count:count+num_samples[i]].sort(1, descending=False)[0][:, :1]
+        total_md = torch.cat([total_md, md], dim=1)
+        count = count + num_samples[i]  
+    
+    return total_md
+
+    
+def distance(t1, t2):
+    t1_square = torch.sum(t1 ** 2, dim=1, keepdim=True) # r
+    t2_square = torch.sum(t2** 2, dim=1)  # ci
+    distance_set = torch.sqrt(t1_square + t2_square - 2 * torch.matmul(t1, t2.t()))   # Distance Set G, gi = ||r-ci||_2^2
+    
+    return distance_set

@@ -336,7 +336,7 @@ def train(
         )
     debug_print(logger, "end distributed")
 
-    if cfg.SOLVER.PRE_VAL:
+    if False:
         logger.info("Validate before training")
         run_val(cfg, model, val_data_loaders, distributed, logger)
 
@@ -544,15 +544,14 @@ def run_test(cfg, model, distributed, logger):
         iou_types = iou_types + ("attributes",)
 
     if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
-        dataset_names = cfg.DATASETS.VG_VAL
+        dataset_names = cfg.DATASETS.VG_TEST
     elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
-        dataset_names = cfg.DATASETS.GQA_200_VAL
-    elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'OIv6':
-        dataset_names = cfg.DATASETS.OIv6_VAL
+        dataset_names = cfg.DATASETS.GQA_200_TEST
     else:
         dataset_names = None
         exit('wrong Dataset name!')
-    output_folders = [None] * len(cfg.DATASETS.TEST)
+        
+    output_folders = [None] * len(dataset_names)
 
     if cfg.OUTPUT_DIR:
         for idx, dataset_name in enumerate(dataset_names):

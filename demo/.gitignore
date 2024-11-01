@@ -1,5 +1,0 @@
-cache
-static
-*.pyc
-__pycache__
-db.sqlite3

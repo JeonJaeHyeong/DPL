@@ -21,8 +21,13 @@ class GRCNN(nn.Module):
         self.dim = hidden_dim
         self.feat_update_step = cfg.MODEL.ROI_RELATION_HEAD.GRCNN_MODULE.FEATURE_UPDATE_STEP
         self.score_update_step = cfg.MODEL.ROI_RELATION_HEAD.GRCNN_MODULE.SCORES_UPDATE_STEP
-        num_classes_obj = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
-        num_classes_pred = cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            num_classes_obj = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            num_classes_pred = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            num_classes_obj = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            num_classes_pred = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
+        
         # self.obj_feature_extractor = make_roi_relation_box_feature_extractor(cfg, in_channels)
 
         self.vail_pair_num = cfg.MODEL.ROI_RELATION_HEAD.GRCNN_MODULE.MP_VALID_PAIRS_NUM

@@ -7,6 +7,7 @@ maskrcnn_benchmark.egg-info/
 pysgg.egg-info/
 build/
 dist/
+checkpoints/
 
 # ipython/jupyter notebooks
 #*.ipynb

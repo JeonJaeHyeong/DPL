@@ -117,7 +117,11 @@ class RelationProposalModel(nn.Module):
     def __init__(self, cfg):
         super(RelationProposalModel, self).__init__()
         self.cfg = cfg
-        self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+
         self.embed_dim = cfg.MODEL.ROI_RELATION_HEAD.EMBED_DIM
         self.geometry_feat_dim = 128
         self.roi_feat_dim = cfg.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM
@@ -376,12 +380,16 @@ class PreClassifierInstFeatureRelPN(nn.Module):
     def __init__(self, input_dim):
         super(PreClassifierInstFeatureRelPN, self).__init__()
         self.cfg = cfg
-        self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
+
 
         self.binary_predictor = False
-
         self.input_dim = input_dim
-        self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
         self.embed_dim = cfg.MODEL.ROI_RELATION_HEAD.EMBED_DIM
         self.geometry_feat_dim = 128
         self.roi_feat_dim = cfg.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM
@@ -527,14 +535,17 @@ class GRCNNRelProp(nn.Module):
     ):
         super(GRCNNRelProp, self).__init__()
         self.cfg = cfg
-        self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
 
 
         self.predictor_type = (
             cfg.MODEL.ROI_RELATION_HEAD.RELATION_PROPOSAL_MODEL.REL_AWARE_PREDICTOR_TYPE
         )
-
-        self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
 
         self.hidden_dim = 256
         self.out_dim = 1
@@ -604,7 +615,12 @@ class RelAwareRelFeature(nn.Module):
     ):
         super(RelAwareRelFeature, self).__init__()
         self.cfg = cfg
-        self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            self.num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
 
         self.input_dim = input_dim
 
@@ -612,7 +628,6 @@ class RelAwareRelFeature(nn.Module):
             cfg.MODEL.ROI_RELATION_HEAD.RELATION_PROPOSAL_MODEL.REL_AWARE_PREDICTOR_TYPE
         )
 
-        self.num_obj_classes = cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES
         self.embed_dim = cfg.MODEL.ROI_RELATION_HEAD.EMBED_DIM
         self.geometry_feat_dim = 128
         self.roi_feat_dim = cfg.MODEL.ROI_BOX_HEAD.MLP_HEAD_DIM

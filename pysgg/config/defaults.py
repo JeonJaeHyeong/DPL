@@ -45,9 +45,9 @@ _C.MODEL.WEIGHT = ""
 
 # checkpoint of detector, for relation prediction
 _C.MODEL.PRETRAINED_DETECTOR_CKPT_VG = DatasetCatalog.DATA_DIR+\
-                                    "datasets/detector_model/vg_det.pth"
+                                    "/detector_model/vg_det.pth"
 _C.MODEL.PRETRAINED_DETECTOR_CKPT_GQA = DatasetCatalog.DATA_DIR+\
-                                    "datasets/detector_model/gqa/gqa_det.pth"
+                                    "/detector_model/gqa/gqa_det.pth"
 # -----------------------------------------------------------------------------
 # INPUT
 # -----------------------------------------------------------------------------
@@ -80,12 +80,15 @@ _C.INPUT.VERTICAL_FLIP_PROB_TRAIN = 0.0
 # -----------------------------------------------------------------------------
 _C.DATASETS = CN()
 # List of the dataset names for training, as present in paths_catalog.py
-_C.DATASETS.TRAIN = ()
+_C.DATASETS.VG_TRAIN = ()
 # List of the dataset names for val, as present in paths_catalog.py
 # Note that except dataset names, all remaining val configs reuse those of test
-_C.DATASETS.VAL = ()
+_C.DATASETS.VG_VAL = ()
 # List of the dataset names for testing, as present in paths_catalog.py
-_C.DATASETS.TEST = ()
+_C.DATASETS.VG_TEST = ()
+_C.DATASETS.GQA_200_TRAIN = ()
+_C.DATASETS.GQA_200_VAL = ()
+_C.DATASETS.GQA_200_TEST = ()
 
 # the precomputed_det_box for relation networks
 _C.DATASETS.LOAD_PRECOMPUTE_DETECTION_BOX = False
@@ -455,7 +458,7 @@ _C.MODEL.ROI_RELATION_HEAD.CAUSAL.CONTEXT_LAYER = 'motifs'
 _C.MODEL.ROI_RELATION_HEAD.DPL = CN()
 _C.MODEL.ROI_RELATION_HEAD.DPL.N_DIM = 128
 _C.MODEL.ROI_RELATION_HEAD.DPL.ALPHA = 10
-_C.MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE = 20
+_C.MODEL.ROI_RELATION_HEAD.DPL.AVG_NUM_SAMPLE = 20
 _C.MODEL.ROI_RELATION_HEAD.DPL.RADIUS = 1.0
 _C.MODEL.ROI_RELATION_HEAD.DPL.FREQ_BASED_N = False
 

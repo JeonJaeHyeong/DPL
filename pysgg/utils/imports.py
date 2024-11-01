@@ -1,7 +1,8 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 import torch
-
-if torch._six.PY3:
+import sys
+#if torch._six.PY3:
+if sys.version_info[0] >= 3:
     import importlib
     import importlib.util
     import sys

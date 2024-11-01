@@ -41,7 +41,7 @@ def do_vg_evaluation(
     else:
         mode = 'sgdet'
 
-    num_rel_category = cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES
+    num_rel_category = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
     multiple_preds = cfg.TEST.RELATION.MULTIPLE_PREDS
     iou_thres = cfg.TEST.RELATION.IOU_THRESHOLD
     assert mode in {'predcls', 'sgdet', 'sgcls', 'phrdet', 'preddet'}

@@ -53,7 +53,7 @@ datasets
 
 You can choose the training/testing dataset by setting the following parameter:
 ``` bash
-GLOBAL_SETTING.DATASET_CHOICE 'VG'  # ['VG', 'GQA_200', 'OIV6']
+GLOBAL_SETTING.DATASET_CHOICE 'VG'  # ['VG', 'GQA_200']
 ```
 
 ### Choose a task
@@ -95,7 +95,7 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --
     SOLVER.CHECKPOINT_PERIOD 2000 \
     MODEL.ROI_RELATION_HEAD.DPL.N_DIM 128   \
     MODEL.ROI_RELATION_HEAD.DPL.ALPHA 10    \
-    MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE 20      \
+    MODEL.ROI_RELATION_HEAD.DPL.AVG_NUM_SAMPLE 20      \
     MODEL.ROI_RELATION_HEAD.DPL.RADIUS 1.0     \
     GLOBAL_SETTING.DATASET_CHOICE "VG" \
 ```
@@ -120,10 +120,20 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --
     SOLVER.CHECKPOINT_PERIOD 2000 \
     MODEL.ROI_RELATION_HEAD.DPL.N_DIM 128   \
     MODEL.ROI_RELATION_HEAD.DPL.ALPHA 10    \
-    MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE 20      \
+    MODEL.ROI_RELATION_HEAD.DPL.AVG_NUM_SAMPLE 20      \
     MODEL.ROI_RELATION_HEAD.DPL.RADIUS 1.0     \
     GLOBAL_SETTING.DATASET_CHOICE "VG" \
 ```
+
+### Choose a dataset
+
+Our model is set to sample the same number of samples for each predicate by default. However, it is also possible to allocate a different number of samples for each predicate by setting the following option to True.
+``` bash
+
+MODEL.ROI_RELATION_HEAD.DPL.FREQ_BASED_DIFF_N True
+```
+
+This will allow more samples to be allocated to head classes and fewer samples to tail classes, while keeping the average number of samples the same.
 
 ## Evaluation
 

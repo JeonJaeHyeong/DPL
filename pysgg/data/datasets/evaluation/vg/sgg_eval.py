@@ -573,18 +573,25 @@ class SGStagewiseRecall(SceneGraphEvaluation):
                 }
             )
 
+        if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+            num_classes_obj = cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            num_classes_pred = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+        elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+            num_classes_obj = cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+            num_classes_pred = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
+
         self.relation_per_cls_hit_recall = {
             "rel_hit": torch.zeros(
-                (3, cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES, 2), dtype=torch.int64
+                (3, num_classes_pred, 2), dtype=torch.int64
             ),
             "pair_loc": torch.zeros(
-                (3, cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES, 2), dtype=torch.int64
+                (3, num_classes_pred, 2), dtype=torch.int64
             ),
             "pair_det": torch.zeros(
-                (3, cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES, 2), dtype=torch.int64
+                (3, num_classes_pred, 2), dtype=torch.int64
             ),
             "pred_cls": torch.zeros(
-                (3, cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES, 2), dtype=torch.int64
+                (3, num_classes_pred, 2), dtype=torch.int64
             ),
         }
 
@@ -1144,8 +1151,14 @@ class SGStagewiseRecall(SceneGraphEvaluation):
             def stat_per_class_recall_hit(self, hit_type, gt_hit_idx):
                 gt_rel_labels = gt_relations[:, -1]
                 hit_rel_class_id = gt_rel_labels[gt_hit_idx]
+
+                if cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+                    num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.VG_NUM_CLASSES
+                elif cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+                    num_rel_cls = cfg.MODEL.ROI_RELATION_HEAD.GQA_200_NUM_CLASSES
+                    
                 per_cls_rel_hit = torch.zeros(
-                    (cfg.MODEL.ROI_RELATION_HEAD.NUM_CLASSES, 2), dtype=torch.int64
+                    (num_rel_cls, 2), dtype=torch.int64
                 )
                 # first one is pred hit num, second is gt num
                 per_cls_rel_hit[hit_rel_class_id, 0] += 1

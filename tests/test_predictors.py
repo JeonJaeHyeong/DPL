@@ -59,10 +59,16 @@ class TestPredictors(unittest.TestCase):
             PREDICTOR_INPUT_CHANNELS,
             hwsize=1,
         ):
+
+            if cur_cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+                num_obj_classes = cur_cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            elif cur_cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+                num_obj_classes = cur_cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+                
             self.assertEqual(len(cur_out), 2)
             scores, bbox_deltas = cur_out[0], cur_out[1]
             self.assertEqual(
-                scores.shape[1], cur_cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES)
+                scores.shape[1], num_obj_classes)
             self.assertEqual(scores.shape[0], cur_in.shape[0])
             self.assertEqual(scores.shape[0], bbox_deltas.shape[0])
             self.assertEqual(scores.shape[1] * 4, bbox_deltas.shape[1])
@@ -89,9 +95,15 @@ class TestPredictors(unittest.TestCase):
             PREDICTOR_INPUT_CHANNELS,
             hwsize=14,
         ):
+
+            if cur_cfg.GLOBAL_SETTING.DATASET_CHOICE == 'VG':
+                num_obj_classes = cur_cfg.MODEL.ROI_BOX_HEAD.VG_NUM_CLASSES
+            elif cur_cfg.GLOBAL_SETTING.DATASET_CHOICE == 'GQA_200':
+                num_obj_classes = cur_cfg.MODEL.ROI_BOX_HEAD.GQA_200_NUM_CLASSES
+                
             self.assertEqual(cur_out.shape[0], cur_in.shape[0])
             self.assertEqual(
-                cur_out.shape[1], cur_cfg.MODEL.ROI_BOX_HEAD.NUM_CLASSES)
+                cur_out.shape[1], num_obj_classes)
 
 
 if __name__ == "__main__":
