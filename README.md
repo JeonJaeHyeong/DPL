@@ -2,8 +2,6 @@
 
 This is the official code for ECCV 2024 paper [Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation](https://arxiv.org/abs/2407.15396).
 
-The code is expected to be completed by the end of October. Currently, it is not functional yet. Please wait a little longer.
-
 ## Installation
 
 Check [INSTALL.md](INSTALL.md) for installation instructions, the recommended configuration is cuda-11.1 & pytorch-1.8.2.  
@@ -15,7 +13,7 @@ Check [DATASET.md](DATASET.md) for instructions of dataset preprocessing.
 
 ## Pretrained Models
 
-1. For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). 
+1. For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://shanghaitecheducn-my.sharepoint.com/:u:/g/personal/lirj2_shanghaitech_edu_cn/EQIy64T-EK9Er9y8kVCDaukB79gJwfSsEIbey9g0Xag6lg?e=wkKHJs). 
 2. For GQA dataset, we trained a new object detector which can be downloaded from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). However, for better results, we suggest pretraining a new model on GQA, as we did not pretrain it multiple times to select the best pre-trained model.
 
 
@@ -142,7 +140,7 @@ You provide the trained model from [this link](https://drive.google.com/drive/fo
 ```bash
 export gpu_num=1
 
-checkpoint_dir="your_dir"
+checkpoint_dir="checkpoint path"
 CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --nproc_per_node=1 \
     tools/relation_test_net.py \
     --config-file "$checkpoint_dir/config.yml" \
@@ -168,8 +166,9 @@ If you find this project helps your research, please kindly consider citing our 
 ## Acknowledgment
 This repository is developed on top of the following code bases:
 
-Scene graph benchmarking framework develped by [KaihuaTang](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch)
-A Toolkit for Scene Graph Benchmark in Pytorch by [Rongjie Li](https://github.com/SHTUPLUS/PySGG)
-Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation in Pytorch by [Xingning Dong](https://github.com/dongxingning/SHA-GCL-for-SGG)
+1. Scene graph benchmarking framework develped by [KaihuaTang](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch)
+2. A Toolkit for Scene Graph Benchmark in Pytorch by [Rongjie Li](https://github.com/SHTUPLUS/PySGG)
+3. Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation in Pytorch by [Xingning Dong](https://github.com/dongxingning/SHA-GCL-for-SGG)
+4. Vision Relation Transformer for Unbiased Scene Graph Generation by [Gopika Sudhakaran](https://github.com/visinf/veto)
 
 -->
