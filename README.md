@@ -41,7 +41,7 @@ datasets
 
   |--detector_model
     |--pretrained_faster_rcnn
-      |-vg_det.pth
+      |-vg_faster_det.pth
     |--GQA
       |--gqa_det.pth
 

@@ -45,7 +45,7 @@ _C.MODEL.WEIGHT = ""
 
 # checkpoint of detector, for relation prediction
 _C.MODEL.PRETRAINED_DETECTOR_CKPT_VG = DatasetCatalog.DATA_DIR+\
-                                    "/detector_model/vg_det.pth"
+                                    "/detector_model/vg_faster_det.pth"
 _C.MODEL.PRETRAINED_DETECTOR_CKPT_GQA = DatasetCatalog.DATA_DIR+\
                                     "/detector_model/gqa/gqa_det.pth"
 # -----------------------------------------------------------------------------
