@@ -129,7 +129,7 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --
 
 You can simply run the scripts located in the script folder.
 
-### Choose a dataset
+### Other options
 
 Our model is set to sample the same number of samples for each predicate by default. However, it is also possible to allocate a different number of samples for each predicate by setting the following option to True. However, this option is only available for the VG dataset and cannot be used with the GQA dataset, as the pred_counts.pkl file is not available.
 ``` bash
