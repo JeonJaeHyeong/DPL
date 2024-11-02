@@ -38,11 +38,6 @@ class RelationSampling(object):
             if (not self.use_gt_box) and self.test_overlap:
                 cand_matrix = cand_matrix.byte() & boxlist_iou(p, p).gt(0).byte()
             idxs = torch.nonzero(cand_matrix).view(-1, 2)
-            if len(idxs) > self.max_proposal_pairs:
-                pairs_qualities = p.get_field("pred_scores")
-                pairs_qualities = pairs_qualities[idxs[:, 0]] * pairs_qualities[idxs[:, 1]]
-                select_idx = torch.sort(pairs_qualities, descending=True)[-1][: self.max_proposal_pairs]
-                idxs = idxs[select_idx]
 
             if len(idxs) > 0:
                 rel_pair_idxs.append(idxs)

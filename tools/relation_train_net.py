@@ -336,7 +336,7 @@ def train(
         )
     debug_print(logger, "end distributed")
 
-    if False:
+    if True:
         logger.info("Validate before training")
         run_val(cfg, model, val_data_loaders, distributed, logger)
 
@@ -381,6 +381,7 @@ def train(
             scaled_losses.backward()
 
         # add clip_grad_norm from MOTIFS, tracking gradient, used for debug
+        print_first_grad = False
         verbose = ( iteration % cfg.SOLVER.PRINT_GRAD_FREQ ) == 0 or print_first_grad  # print grad or not
         print_first_grad = False
         clip_grad_norm(
