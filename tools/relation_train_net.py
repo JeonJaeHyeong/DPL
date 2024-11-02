@@ -312,7 +312,7 @@ def train(
 
     # todo, unless mark as resume, otherwise load from the pretrained checkpoint
     if checkpointer.has_checkpoint():
-        extra_checkpoint_data = checkpointer.load(pretrain_object_detector_dir, with_optim=False,
+        extra_checkpoint_data = checkpointer.load(pretrain_object_detector_dir, #with_optim=False,
                                        update_schedule=cfg.SOLVER.UPDATE_SCHEDULE_DURING_LOAD)
         arguments.update(extra_checkpoint_data)
     else:
