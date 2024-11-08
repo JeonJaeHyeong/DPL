@@ -821,7 +821,7 @@ _C.TEST.ALLOW_LOAD_FROM_CACHE = False
 # Misc options
 # ---------------------------------------------------------------------------- #
 _C.OUTPUT_DIR = "./checkpoints"
-_C.GLOVE_DIR = DatasetCatalog.DATA_DIR+"datasets/vg/glove"
+_C.GLOVE_DIR = DatasetCatalog.DATA_DIR+"/vg/glove"
 
 _C.PATHS_CATALOG = os.path.join(os.path.dirname(__file__), "paths_catalog.py")
 _C.PATHS_DATA = os.path.join(os.path.dirname(__file__), "../data/datasets")
