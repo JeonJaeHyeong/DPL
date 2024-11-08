@@ -78,10 +78,12 @@ Motifs + DPL for PredCls Task.
 ```bash
 export gpu_num=1
 export EXP=checkpoints
+export CUDA_VISIBLE_DEVICES="0"
 OUTPATH=$EXP/VG/motif/predcls/DPL
 mkdir -p $OUTPATH
 
-CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --nproc_per_node=1 \
+python -m torch.distributed.launch --master_port 10028 --nproc_per_node=$gpu_num \
+    tools/relation_train_net.py \
     --config-file "configs/e2e_relation_X_101_32_8_FPN_1x.yaml" \
     MODEL.ROI_RELATION_HEAD.USE_GT_BOX True \
     MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True \
@@ -89,7 +91,7 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --
     MODEL.ROI_RELATION_HEAD.PREDICTOR MotifsLikePredictor_DPL \
     GLOBAL_SETTING.BASIC_ENCODER Motifs \
     SOLVER.IMS_PER_BATCH $[3*$gpu_num] \
-    TEST.IMS_PER_BATCH $[$3*$gpu_num] \
+    TEST.IMS_PER_BATCH $[$gpu_num] \
     SOLVER.MAX_ITER 60000 \
     SOLVER.VAL_PERIOD 2000 \
     SOLVER.CHECKPOINT_PERIOD 2000 \
@@ -105,10 +107,12 @@ VCTree + DPL for PredCls Task.
 ```bash
 export gpu_num=1
 export EXP=checkpoints
+export CUDA_VISIBLE_DEVICES="0"
 OUTPATH=$EXP/VG/motif/predcls/DPL
 mkdir -p $OUTPATH
 
-CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --nproc_per_node=1 \
+python -m torch.distributed.launch --master_port 10028 --nproc_per_node=$gpu_num \
+    tools/relation_train_net.py \
     --config-file "configs/e2e_relation_X_101_32_8_FPN_1x.yaml" \
     MODEL.ROI_RELATION_HEAD.USE_GT_BOX True \
     MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True \
@@ -116,7 +120,7 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --
     MODEL.ROI_RELATION_HEAD.PREDICTOR VCTreePredictor_DPL \
     GLOBAL_SETTING.BASIC_ENCODER Motifs \
     SOLVER.IMS_PER_BATCH $[3*$gpu_num] \
-    TEST.IMS_PER_BATCH $[$3*$gpu_num] \
+    TEST.IMS_PER_BATCH $[$gpu_num] \
     SOLVER.MAX_ITER 60000 \
     SOLVER.VAL_PERIOD 2000 \
     SOLVER.CHECKPOINT_PERIOD 2000 \
