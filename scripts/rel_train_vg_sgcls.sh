@@ -4,7 +4,7 @@ export gpu_num=1
 export EXP=checkpoints
 export CUDA_VISIBLE_DEVICES="8"
 
-OUTPATH=$EXP/VG/motif/sgcls/dpl
+OUTPATH=$EXP/VG/motif/sgcls/put_exp_name
 mkdir -p $OUTPATH
 cp pysgg/modeling/roi_heads/relation_head/roi_relation_predictors.py $OUTPATH/roi_relation_predictors.py
 

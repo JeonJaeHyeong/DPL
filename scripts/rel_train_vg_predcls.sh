@@ -1,4 +1,5 @@
 #!/bin/bash
+export OMP_NUM_THREADS=1
 export gpu_num=2
 export EXP=checkpoints
 export CUDA_VISIBLE_DEVICES="7,8"
@@ -11,8 +12,8 @@ cp pysgg/modeling/roi_heads/relation_head/roi_relation_predictors.py $OUTPATH/ro
 python -m torch.distributed.launch --master_port 10028 --nproc_per_node=$gpu_num \
        tools/relation_train_net.py \
        --config-file "configs/e2e_relation_X_101_32_8_FPN_1x.yaml" \
-       MODEL.ROI_RELATION_HEAD.USE_GT_BOX False \
-       MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL False \
+       MODEL.ROI_RELATION_HEAD.USE_GT_BOX True \
+       MODEL.ROI_RELATION_HEAD.USE_GT_OBJECT_LABEL True \
        OUTPUT_DIR $OUTPATH  \
        MODEL.ROI_RELATION_HEAD.PREDICTOR MotifsLikePredictor_DPL \
        GLOBAL_SETTING.BASIC_ENCODER Motifs \
