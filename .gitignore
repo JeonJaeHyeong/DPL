@@ -31,8 +31,6 @@ checkpoints/
 # MacOS
 .DS_Store
 
-scripts/*
-
 pymp-*
 
 jupyter
