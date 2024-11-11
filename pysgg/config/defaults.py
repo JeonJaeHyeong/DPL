@@ -47,7 +47,7 @@ _C.MODEL.WEIGHT = ""
 _C.MODEL.PRETRAINED_DETECTOR_CKPT_VG = DatasetCatalog.DATA_DIR+\
                                     "/detector_model/vg_faster_det.pth"
 _C.MODEL.PRETRAINED_DETECTOR_CKPT_GQA = DatasetCatalog.DATA_DIR+\
-                                    "/detector_model/gqa/gqa_det.pth"
+                                    "/detector_model/gqa_det.pth"
 # -----------------------------------------------------------------------------
 # INPUT
 # -----------------------------------------------------------------------------

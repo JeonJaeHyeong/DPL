@@ -69,7 +69,7 @@ def get_dataset_statistics(cfg):
         'pred_dist': statistics[0]['pred_dist'],
         'obj_classes': statistics[0]['obj_classes'],  # must be exactly same for multiple datasets
         'rel_classes': statistics[0]['rel_classes'],
-        'att_classes': statistics[0]['att_classes'],
+        #'att_classes': statistics[0]['att_classes'],
     }
     logger.info('Save data statistics to: ' + str(save_file))
     logger.info('-' * 100)

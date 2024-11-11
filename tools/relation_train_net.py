@@ -336,7 +336,7 @@ def train(
         )
     debug_print(logger, "end distributed")
 
-    if True:
+    if False:
         logger.info("Validate before training")
         run_val(cfg, model, val_data_loaders, distributed, logger)
 
