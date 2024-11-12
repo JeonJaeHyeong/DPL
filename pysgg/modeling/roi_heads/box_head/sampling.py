@@ -35,7 +35,7 @@ class FastRCNNSampling(object):
         match_quality_matrix = boxlist_iou(target, proposal)
         matched_idxs = self.proposal_matcher(match_quality_matrix)
         # Fast RCNN only need "labels" field for selecting the targets
-        target = target.copy_with_fields(["labels", "attributes"])
+        target = target.copy_with_fields(["labels"]) #, "attributes"])
         # get the targets corresponding GT for each proposal
         # NB: need to clamp the indices because we can have a single
         # GT in the image, and matched_idxs can be -2, which goes
@@ -120,7 +120,7 @@ class FastRCNNSampling(object):
             match_quality_matrix = boxlist_iou(target, proposal)
             matched_idxs = self.proposal_matcher(match_quality_matrix)
             # Fast RCNN only need "labels" field for selecting the targets
-            target = target.copy_with_fields(["labels", "attributes"])
+            target = target.copy_with_fields(["labels"]) #, "attributes"])
             matched_targets = target[matched_idxs.clamp(min=0)]
             
             labels_per_image = matched_targets.get_field("labels").to(dtype=torch.int64)
