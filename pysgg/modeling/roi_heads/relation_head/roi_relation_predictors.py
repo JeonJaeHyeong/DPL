@@ -167,7 +167,7 @@ class TransformerPredictor(nn.Module):
 
         # use frequence bias
         if self.use_bias:
-            rel_dists = rel_dists + self.freq_bias.index_with_labels(pair_pred)
+            rel_dists = rel_dists + self.freq_bias.index_with_labels(pair_pred.long())
 
         obj_dists = obj_dists.split(num_objs, dim=0)
         rel_dists = rel_dists.split(num_rels, dim=0)

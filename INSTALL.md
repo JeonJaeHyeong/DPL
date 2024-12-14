@@ -26,7 +26,7 @@ conda activate dpl
 conda install -y ipython scipy h5py
 
 # scene_graph_benchmark and coco api dependencies
-pip install ninja yacs cython matplotlib tqdm opencv-python overrides gpustat gitpython ipdb graphviz tensorboardx termcolor scikit-learn
+pip install ninja yacs cython matplotlib tqdm opencv-python overrides gpustat gitpython ipdb graphviz tensorboardx termcolor scikit-learn numpy==1.2
 
 
 # follow PyTorch installation in https://pytorch.org/get-started/locally/

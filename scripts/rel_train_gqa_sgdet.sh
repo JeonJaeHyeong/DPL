@@ -23,7 +23,7 @@ python -m torch.distributed.launch --master_port 10028 --nproc_per_node=$gpu_num
        SOLVER.CHECKPOINT_PERIOD 2000 \
        MODEL.ROI_RELATION_HEAD.DPL.N_DIM 128   \
        MODEL.ROI_RELATION_HEAD.DPL.ALPHA 10    \
-       MODEL.ROI_RELATION_HEAD.DPL.NUM_SAMPLE 20      \
+       MODEL.ROI_RELATION_HEAD.DPL.AVG_NUM_SAMPLE 20      \
        MODEL.ROI_RELATION_HEAD.DPL.RADIUS 1.0     \
        GLOBAL_SETTING.DATASET_CHOICE "GQA_200" \
 

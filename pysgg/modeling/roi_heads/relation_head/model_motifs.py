@@ -186,10 +186,10 @@ class DecoderRNN(nn.Module):
                 # Whenever labels are 0 set input to be our max prediction
                 nonzero_pred = pred_dist[:, 1:].max(1)[1] + 1
                 is_bg = (labels_to_embed == 0).nonzero()
-                if is_bg.dim() > 0:
+                if is_bg.dim() > 0 and is_bg.shape[0] > 0:
                     labels_to_embed[is_bg.squeeze(1)] = nonzero_pred[is_bg.squeeze(1)]
                 refined_obj_labels.append(labels_to_embed)
-                previous_obj_embed = self.obj_embed(labels_to_embed + 1)
+                previous_obj_embed = self.obj_embed(labels_to_embed.long() + 1)
             else:
                 assert l_batch == 1
                 out_dist_sample = F.softmax(pred_dist, dim=1)

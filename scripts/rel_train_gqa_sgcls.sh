@@ -2,7 +2,7 @@
 export OMP_NUM_THREADS=1
 export gpu_num=1
 export EXP=checkpoints
-export CUDA_VISIBLE_DEVICES="8"
+export CUDA_VISIBLE_DEVICES="9"
 
 OUTPATH=$EXP/GQA/motif/sgcls/put_exp_name
 mkdir -p $OUTPATH
