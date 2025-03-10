@@ -1607,6 +1607,11 @@ class VCTreePredictor_DPL(nn.Module):
         self.use_obj_recls_logits = config.MODEL.ROI_RELATION_HEAD.REL_OBJ_MULTI_TASK_LOSS
         self.use_obj_recls_labels = config.MODEL.ROI_RELATION_HEAD.OBJECT_CLASSIFICATION_REFINE
 
+        self.cdim = config.MODEL.ROI_RELATION_HEAD.DPL.N_DIM
+        self.rel_compress = build_classifier(self.pooling_dim, self.cdim, bias=True) # self.num_rel_cls
+        self.rel_compress.reset_parameters()
+
+
         self.proto_emb = nn.Parameter(torch.zeros(self.num_rel_cls, self.cdim), requires_grad=True)
         nn.init.orthogonal_(self.proto_emb)
 
