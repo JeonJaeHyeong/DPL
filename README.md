@@ -162,12 +162,15 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --
 If you find this project helps your research, please kindly consider citing our papers in your publications.
 
 ```
-@article{jeon2024semantic,
-  title={Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation},
+@inproceedings{jeon2024semantic,
+  title={Semantic Diversity-Aware Prototype-Based Learning for Unbiased Scene Graph Generation},
   author={Jeon, Jaehyeong and Kim, Kibum and Yoon, Kanghoon and Park, Chanyoung},
-  journal={arXiv preprint arXiv:2407.15396},
-  year={2024}
+  booktitle={European Conference on Computer Vision},
+  pages={379--395},
+  year={2024},
+  organization={Springer}
 }
+
 ```
 
 
