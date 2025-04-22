@@ -157,6 +157,13 @@ CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10001 --
     TEST.ALLOW_LOAD_FROM_CACHE True \
 ```
 
+## Comments on Training Dynamics
+
+During the training process, our model initially shows very high mean recall but low recall. As training progresses, mean recall tends to decrease while recall increases. The performance metrics reported in our paper represent the optimal balance point between recall and mean recall.
+
+If you are unable to reproduce the performance reported in the paper, try adjusting the learning rate to make these changes more gradual. This can help you find a better balance point between recall and mean recall, potentially leading to improved overall performance.
+
+
 ## Citations
 
 If you find this project helps your research, please kindly consider citing our papers in your publications.
@@ -177,9 +184,7 @@ If you find this project helps your research, please kindly consider citing our 
 ## Acknowledgment
 This repository is developed on top of the following code bases:
 
-1. Scene graph benchmarking framework develped by [KaihuaTang](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch)
+1. Scene graph benchmarking framework developed by [KaihuaTang](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch)
 2. A Toolkit for Scene Graph Benchmark in Pytorch by [Rongjie Li](https://github.com/SHTUPLUS/PySGG)
 3. Stacked Hybrid-Attention and Group Collaborative Learning for Unbiased Scene Graph Generation in Pytorch by [Xingning Dong](https://github.com/dongxingning/SHA-GCL-for-SGG)
 4. Vision Relation Transformer for Unbiased Scene Graph Generation by [Gopika Sudhakaran](https://github.com/visinf/veto)
-
--->
