@@ -1,6 +1,6 @@
 # Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation (ECCV 2024)
 
-This is the official code for ECCV 2024 paper [Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation](https://arxiv.org/abs/2407.15396).
+This is the official code for ECCV 2024 paper [Semantic Diversity-aware Prototype-based Learning for Unbiased Scene Graph Generation](https://arxiv.org/abs/2407.15396). If you find this project helpful, please consider giving it a star ⭐️!
 
 ## Installation
 
