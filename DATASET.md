@@ -7,4 +7,4 @@ The following is adapted from [Scene-Graph-Benchmark](https://github.com/KaihuaT
 
 ### For GQA Dataset:
 1. Download the GQA images [Full (20.3 Gb)](https://downloads.cs.stanford.edu/nlp/data/gqa/images.zip). Extract these images to the file `datasets/gqa/images`.
-2. In order to achieve a representative split like VG150, we use the protocol provided by [SHA-GCL](https://github.com/dongxingning/SHA-GCL-for-SGG). You can download the annotation file from [this link](https://huggingface.co/jaehyeongjeon/GQA_detector), and put all three files to  `datasets/gqa/`.
+2. In order to achieve a representative split like VG150, we use the protocol provided by [SHA-GCL](https://github.com/dongxingning/SHA-GCL-for-SGG). You can download the annotation file from [this link](https://huggingface.co/jaehyeongjeon/GQA_detector/tree/main), and put all three files to  `datasets/gqa/`.
