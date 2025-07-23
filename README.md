@@ -14,7 +14,7 @@ Check [DATASET.md](DATASET.md) for instructions of dataset preprocessing.
 ## Pretrained Models
 
 1. For VG dataset, the pretrained object detector we used is provided by [Scene-Graph-Benchmark](https://github.com/KaihuaTang/Scene-Graph-Benchmark.pytorch), you can download it from [this link](https://shanghaitecheducn-my.sharepoint.com/:u:/g/personal/lirj2_shanghaitech_edu_cn/EQIy64T-EK9Er9y8kVCDaukB79gJwfSsEIbey9g0Xag6lg?e=wkKHJs). 
-2. For GQA dataset, we trained a new object detector which can be downloaded from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). However, for better results, we suggest pretraining a new model on GQA, as we did not pretrain it multiple times to select the best pre-trained model.
+2. For GQA dataset, we trained a new object detector which can be downloaded from [this link](https://huggingface.co/jaehyeongjeon/GQA_detector). However, for better results, we suggest pretraining a new model on GQA, as we did not pretrain it multiple times to select the best pre-trained model.
 
 
 ## Perform training on Scene Graph Generation
@@ -143,7 +143,7 @@ This will allow more samples to be allocated to head classes and fewer samples t
 
 ## Evaluation
 
-We provide the trained model from [this link](https://drive.google.com/drive/folders/1OS4-XOQmDZtL9Tssy1jWG-LTupBgIFEX?usp=drive_link). You can evaluate it by running the following command.
+You can evaluate it by running the following command.
 
 ```bash
 export gpu_num=1
